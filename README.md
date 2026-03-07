@@ -32,7 +32,17 @@ npm run build
 npm run start -- -p 3020
 ```
 
-Expose via Tailscale Funnel, Cloudflare Tunnel, or your preferred method.
+Expose via Tailscale Funnel, Cloudflare Tunnel, or your preferred method:
+
+```bash
+# Tailscale Funnel (stable public URL)
+tailscale funnel --https 8443 http://127.0.0.1:3020
+
+# Cloudflare Quick Tunnel (ephemeral, no account needed)
+cloudflared tunnel --url http://127.0.0.1:3020
+```
+
+> **Note:** The server is not running by default. Start it manually when needed for a watching party.
 
 ## Adding a New Event
 
