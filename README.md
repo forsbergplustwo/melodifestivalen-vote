@@ -1,36 +1,129 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Eurovision Party Vote 🎤✨
 
-## Getting Started
+A real-time party voting app for Eurovision Song Contest events — Melodifestivalen, Dansk Melodi Grand Prix, Eurovision, and beyond.
 
-First, run the development server:
+Built for watching parties. No login. No database. Just fun.
+
+## What It Does
+
+- **Vote on Song + Show** (1–10 each) for every artist in the lineup
+- **Live leaderboard** with averages, highest/lowest voters per artist
+- **Winner reveal** ceremony with countdown, staged top-3, and medals
+- **Live official results** scraped from Eurovisionworld with rank change animations
+- **Replay mode** — relive the results announcement in order
+- **Felicia mode** 🔊 — laser light show overlay (because why not)
+- **Confetti cannon** on every vote submit with mood-based emojis
+- **Auto-sync** across all phones (5s polling)
+- **Event-driven** — swap between events by editing a JSON file
+
+## Quick Start
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Production
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+npm run start -- -p 3020
+```
 
-## Learn More
+Expose via Tailscale Funnel, Cloudflare Tunnel, or your preferred method.
 
-To learn more about Next.js, take a look at the following resources:
+## Adding a New Event
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Copy `data/events/_template-national.json` (or `_template-eurovision.json`)
+2. Save as `data/events/your-event-id.json`
+3. Fill in: `id`, `name`, `country` flag, `artists` array, and `liveSource` URL
+4. Update `data/active-event.json` to point to your event ID
+5. Restart the server
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Each event gets its own vote file (`data/state-{eventId}-{subEvent}.json`) and replay history — nothing collides.
 
-## Deploy on Vercel
+### Event Config Shape
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```json
+{
+  "id": "eurovision-2026",
+  "name": "Eurovision Song Contest 2026",
+  "country": "🇪🇺",
+  "type": "eurovision",
+  "subEvents": ["semi-1", "semi-2", "final"],
+  "activeSubEvent": "semi-1",
+  "liveSource": {
+    "url": "https://eurovisionworld.com/eurovision/2026",
+    "tableIds": []
+  },
+  "artists": [
+    { "id": "artist-slug", "name": "Artist", "song": "Song Title", "country": "Sweden", "flag": "🇸🇪", "runningOrder": 1, "imageUrl": "https://..." }
+  ]
+}
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Switching Events via API
+
+```bash
+# Switch active event
+curl -X POST http://localhost:3020/api/event -H 'Content-Type: application/json' -d '{"eventId":"eurovision-2026"}'
+
+# Switch sub-event (e.g. semi-1 → final)
+curl -X POST http://localhost:3020/api/event -H 'Content-Type: application/json' -d '{"subEvent":"final"}'
+```
+
+## How Voting Works
+
+- Voter identified by name (stored in localStorage for convenience)
+- Same voter + same artist = upsert (update existing vote)
+- Song score + Show score (1–10 each), total is the sum
+- All votes stored in a flat JSON file — no database needed
+- Case-insensitive name matching
+
+## Live Results
+
+The live results page scrapes [Eurovisionworld](https://eurovisionworld.com) for real-time scoring data:
+
+- Auto-detects the scoring table from embedded JavaScript data
+- Dynamic column layout detection (works across different event formats)
+- Server-side caching to avoid hammering the source
+- Rank change animations with directional indicators (▲/▼)
+- "Last changed" pulse on recently updated artists
+
+## Architecture
+
+- **Next.js 16** (App Router, Turbopack)
+- **Flat JSON storage** — no database, `data/*.json` files
+- **Server-side rendering** for API routes, static pages for client
+- **5s polling** for vote sync, 3s for live results
+- **Build-ID polling** (12s) for auto-reload on new deployments
+
+## API Routes
+
+| Route | Method | Description |
+|-------|--------|-------------|
+| `/api/state` | GET | Current votes + leaderboard |
+| `/api/vote` | POST | Submit/update a vote |
+| `/api/artists` | GET | Artist list + leaderboard |
+| `/api/event` | GET | Active event config + event list |
+| `/api/event` | POST | Switch active event or sub-event |
+| `/api/live-feed` | GET | Live results from Eurovisionworld |
+| `/api/live-history` | GET | Stored replay frames |
+| `/api/version` | GET | Current build ID (for auto-reload) |
+
+## Tech
+
+- Next.js 16, React 19, TypeScript
+- Tailwind CSS 4
+- No external dependencies for core functionality
+- `vm.runInNewContext` for safe evaluation of scraped JS objects
+
+## License
+
+MIT
+
+---
+
+*Built in one evening for a Melodifestivalen 2026 watching party. Felicia won. 🇸🇪*

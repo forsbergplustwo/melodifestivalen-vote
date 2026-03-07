@@ -1,0 +1,26 @@
+{
+  "id": "melodifestivalen-2026",
+  "name": "Melodifestivalen 2026",
+  "country": "🇸🇪",
+  "type": "national",
+  "subEvents": ["final"],
+  "activeSubEvent": "final",
+  "liveSource": {
+    "url": "https://eurovisionworld.com/national/sweden/melodifestivalen-2026",
+    "tableIds": ["4198", "4197"]
+  },
+  "artists": [
+    { "id": "a-teens", "name": "A*Teens", "song": "Iconic", "runningOrder": 1, "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/A-Teens_group_photo_1999.jpg/440px-A-Teens_group_photo_1999.jpg" },
+    { "id": "meira-omar", "name": "Meira Omar", "song": "Dooset daram", "runningOrder": 2, "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Meira_Omar_Melodifestivalen_2026.jpg/440px-Meira_Omar_Melodifestivalen_2026.jpg" },
+    { "id": "lilla-al-fadji", "name": "Lilla Al-Fadji", "song": "Delulu", "runningOrder": 3, "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Lilla_Al-Fadji_Melodifestivalen_2026.jpg/440px-Lilla_Al-Fadji_Melodifestivalen_2026.jpg" },
+    { "id": "saga-ludvigsson", "name": "Saga Ludvigsson", "song": "Ain't Today", "runningOrder": 4, "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Saga_Ludvigsson_Melodifestivalen_2026.jpg/440px-Saga_Ludvigsson_Melodifestivalen_2026.jpg" },
+    { "id": "smash-into-pieces", "name": "Smash into Pieces", "song": "Hollow", "runningOrder": 5, "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Smash_Into_Pieces_Melodifestivalen_2026.jpg/440px-Smash_Into_Pieces_Melodifestivalen_2026.jpg" },
+    { "id": "cimberly", "name": "Cimberly", "song": "Eternity", "runningOrder": 6, "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Cimberly_Melodifestivalen_2026.jpg/440px-Cimberly_Melodifestivalen_2026.jpg" },
+    { "id": "medina", "name": "Medina", "song": "Viva L'Amor", "runningOrder": 7, "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Medina_Melodifestivalen_2026.jpg/440px-Medina_Melodifestivalen_2026.jpg" },
+    { "id": "greczula", "name": "Greczula", "song": "Half of Me", "runningOrder": 8, "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Greczula_Melodifestivalen_2026.jpg/440px-Greczula_Melodifestivalen_2026.jpg" },
+    { "id": "robin-bengtsson", "name": "Robin Bengtsson", "song": "Honey Honey", "runningOrder": 9, "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Robin_Bengtsson_Melodifestivalen_2026.jpg/440px-Robin_Bengtsson_Melodifestivalen_2026.jpg" },
+    { "id": "felicia", "name": "Felicia", "song": "My System", "runningOrder": 10, "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Felicia_Danielsson_Melodifestivalen_2026.jpg/440px-Felicia_Danielsson_Melodifestivalen_2026.jpg" },
+    { "id": "sanna-nielsen", "name": "Sanna Nielsen", "song": "Waste Your Love", "runningOrder": 11, "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Sanna_Nielsen_Melodifestivalen_2026.jpg/440px-Sanna_Nielsen_Melodifestivalen_2026.jpg" },
+    { "id": "brandsta-city-slackers", "name": "Brandsta City Släckers", "song": "Rakt in i elden", "runningOrder": 12, "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Brandsta_City_Sl%C3%A4ckers_Melodifestivalen_2026.jpg/440px-Brandsta_City_Sl%C3%A4ckers_Melodifestivalen_2026.jpg" }
+  ]
+}

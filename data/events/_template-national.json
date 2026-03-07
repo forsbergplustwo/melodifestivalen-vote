@@ -1,0 +1,13 @@
+{
+  "id": "dmgp-2026",
+  "name": "Dansk Melodi Grand Prix 2026",
+  "country": "🇩🇰",
+  "type": "national",
+  "subEvents": ["final"],
+  "activeSubEvent": "final",
+  "liveSource": {
+    "url": "https://eurovisionworld.com/national/denmark/dansk-melodi-grand-prix-2026",
+    "tableIds": []
+  },
+  "artists": []
+}

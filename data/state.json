@@ -1,17 +1,1008 @@
 {
   "artists": [
-    { "id": "a1", "name": "Artist 1" },
-    { "id": "a2", "name": "Artist 2" },
-    { "id": "a3", "name": "Artist 3" },
-    { "id": "a4", "name": "Artist 4" },
-    { "id": "a5", "name": "Artist 5" },
-    { "id": "a6", "name": "Artist 6" },
-    { "id": "a7", "name": "Artist 7" },
-    { "id": "a8", "name": "Artist 8" },
-    { "id": "a9", "name": "Artist 9" },
-    { "id": "a10", "name": "Artist 10" },
-    { "id": "a11", "name": "Artist 11" },
-    { "id": "a12", "name": "Artist 12" }
+    {
+      "id": "a1",
+      "name": "A-Teens",
+      "song": "Iconic",
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Melodifestivalen_2026_Link%C3%B6ping_A-Teens_presskonferens_03.jpg/500px-Melodifestivalen_2026_Link%C3%B6ping_A-Teens_presskonferens_03.jpg"
+    },
+    {
+      "id": "a2",
+      "name": "Meira Omar",
+      "song": "Dooset daram",
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Melodifestivalen_2026_-_Artists_-_Meira_Omar_07.jpg/500px-Melodifestivalen_2026_-_Artists_-_Meira_Omar_07.jpg"
+    },
+    {
+      "id": "a3",
+      "name": "Lilla Al-Fadji",
+      "song": "Delulu",
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Melodifestivalen_2026_Link%C3%B6ping_programledarna_presskonferens_02.jpg/500px-Melodifestivalen_2026_Link%C3%B6ping_programledarna_presskonferens_02.jpg"
+    },
+    {
+      "id": "a4",
+      "name": "Saga Ludvigsson",
+      "song": "Ain't Today",
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c2/Saga_Ludvigsson_Rockbj%C3%B6rnen_2024_%2815%29_%28cropped%29.jpg"
+    },
+    {
+      "id": "a5",
+      "name": "Smash into Pieces",
+      "song": "Hollow",
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Smash_Into_Pieces_-_Melodifestivalen_2024%2C_Malm%C3%B6-14.jpg/500px-Smash_Into_Pieces_-_Melodifestivalen_2024%2C_Malm%C3%B6-14.jpg"
+    },
+    {
+      "id": "a6",
+      "name": "Cimberly",
+      "song": "Eternity",
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Melodifestivalen_2026%2C_artists_press_conference-38.jpg/500px-Melodifestivalen_2026%2C_artists_press_conference-38.jpg"
+    },
+    {
+      "id": "a7",
+      "name": "Medina",
+      "song": "Viva L'Amor",
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/MEDINA_-_Melodifestivalen_2022%2C_delt%C3%A4vling_4%2C_fredagen_12.png/500px-MEDINA_-_Melodifestivalen_2022%2C_delt%C3%A4vling_4%2C_fredagen_12.png"
+    },
+    {
+      "id": "a8",
+      "name": "Greczula",
+      "song": "Half of Me",
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Greczula_-_Melodifestivalen_2025%2C_V%C3%A4ster%C3%A5s_-_Presskonferens_Torsdag-3.jpg/500px-Greczula_-_Melodifestivalen_2025%2C_V%C3%A4ster%C3%A5s_-_Presskonferens_Torsdag-3.jpg"
+    },
+    {
+      "id": "a9",
+      "name": "Robin Bengtsson",
+      "song": "Honey Honey",
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Melodifestivalen_2026%2C_delt%C3%A4vling_2%2C_G%C3%B6teborg%2C_presskonferens_torsdag%2C_Robin_Bengtsson.jpg/500px-Melodifestivalen_2026%2C_delt%C3%A4vling_2%2C_G%C3%B6teborg%2C_presskonferens_torsdag%2C_Robin_Bengtsson.jpg"
+    },
+    {
+      "id": "a10",
+      "name": "Felicia",
+      "song": "My System",
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Felicia_Eriksson%2C_Melodifestivalen_2026%2C_artists_press_conference-13_%28cropped%29.jpg/500px-Felicia_Eriksson%2C_Melodifestivalen_2026%2C_artists_press_conference-13_%28cropped%29.jpg"
+    },
+    {
+      "id": "a11",
+      "name": "Sanna Nielsen",
+      "song": "Waste Your Love",
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Sanna_Nielsen_-_Melodifestivalen_2025%2C_V%C3%A4ster%C3%A5s_-_Genrep_Fredag-1_%28cropped%29.jpg/500px-Sanna_Nielsen_-_Melodifestivalen_2025%2C_V%C3%A4ster%C3%A5s_-_Genrep_Fredag-1_%28cropped%29.jpg"
+    },
+    {
+      "id": "a12",
+      "name": "Brandsta City Släckers",
+      "song": "Rakt in i elden",
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Melodifestivalen_2026%2C_delt%C3%A4vling_2%2C_G%C3%B6teborg%2C_artistrepetion_torsdag%2C_Brandsta_City_Sl%C3%A4ckers_01.jpg/500px-Melodifestivalen_2026%2C_delt%C3%A4vling_2%2C_G%C3%B6teborg%2C_artistrepetion_torsdag%2C_Brandsta_City_Sl%C3%A4ckers_01.jpg"
+    }
   ],
-  "votes": []
+  "votes": [
+    {
+      "id": "cdc1ac70-42d6-4919-9e78-1c4ff6beb745",
+      "voter": "Niklas",
+      "artistId": "a1",
+      "song": 10,
+      "show": 9,
+      "total": 19,
+      "createdAt": "2026-03-07T19:22:51.896Z",
+      "updatedAt": "2026-03-07T20:19:19.903Z"
+    },
+    {
+      "id": "c4e1d376-9854-42e1-a033-c51f806369ce",
+      "voter": "Sarah",
+      "artistId": "a1",
+      "song": 10,
+      "show": 9,
+      "total": 19,
+      "createdAt": "2026-03-07T19:23:24.394Z",
+      "updatedAt": "2026-03-07T19:23:24.394Z"
+    },
+    {
+      "id": "2caef6b9-8cbd-4af4-91d5-49c10bd6a1e1",
+      "voter": "Niklas",
+      "artistId": "a2",
+      "song": 7,
+      "show": 9,
+      "total": 16,
+      "createdAt": "2026-03-07T19:23:26.855Z",
+      "updatedAt": "2026-03-07T20:19:21.380Z"
+    },
+    {
+      "id": "1e7fec70-93a2-43e3-8fe0-e55fbf93431c",
+      "voter": "Sarah",
+      "artistId": "a2",
+      "song": 7,
+      "show": 9,
+      "total": 16,
+      "createdAt": "2026-03-07T19:23:55.167Z",
+      "updatedAt": "2026-03-07T19:23:55.167Z"
+    },
+    {
+      "id": "65c7dc24-d50a-4d82-8e41-a680cf9ea519",
+      "voter": "Vordis",
+      "artistId": "a1",
+      "song": 8,
+      "show": 8,
+      "total": 16,
+      "createdAt": "2026-03-07T19:24:18.562Z",
+      "updatedAt": "2026-03-07T19:46:37.639Z"
+    },
+    {
+      "id": "1d101b5c-3f1e-48f2-8bdf-91ea4a69169c",
+      "voter": "Vordis",
+      "artistId": "a2",
+      "song": 3,
+      "show": 6,
+      "total": 9,
+      "createdAt": "2026-03-07T19:24:28.204Z",
+      "updatedAt": "2026-03-07T19:24:28.204Z"
+    },
+    {
+      "id": "978c31de-cc1c-4e35-b26d-12ec6d22308c",
+      "voter": "Sarah",
+      "artistId": "a3",
+      "song": 2,
+      "show": 4,
+      "total": 6,
+      "createdAt": "2026-03-07T19:25:28.061Z",
+      "updatedAt": "2026-03-07T19:25:28.061Z"
+    },
+    {
+      "id": "3a8d3c37-175c-44dd-b5a0-6b946da29872",
+      "voter": "Liva",
+      "artistId": "a1",
+      "song": 8,
+      "show": 7,
+      "total": 15,
+      "createdAt": "2026-03-07T19:25:30.646Z",
+      "updatedAt": "2026-03-07T20:16:00.363Z"
+    },
+    {
+      "id": "0fa1e407-d561-45a5-b9f0-1e7282752fd8",
+      "voter": "Liva",
+      "artistId": "a2",
+      "song": 7,
+      "show": 10,
+      "total": 17,
+      "createdAt": "2026-03-07T19:25:32.509Z",
+      "updatedAt": "2026-03-07T20:14:22.890Z"
+    },
+    {
+      "id": "89ffe67a-34c0-449b-ba03-2bfbc96c207d",
+      "voter": "Liva",
+      "artistId": "a3",
+      "song": 1,
+      "show": 2,
+      "total": 3,
+      "createdAt": "2026-03-07T19:25:41.710Z",
+      "updatedAt": "2026-03-07T20:14:20.399Z"
+    },
+    {
+      "id": "5aaf1ddb-c48b-4b3d-961b-edcc54d10e1c",
+      "voter": "Bjorn",
+      "artistId": "a1",
+      "song": 10,
+      "show": 8,
+      "total": 18,
+      "createdAt": "2026-03-07T19:27:11.330Z",
+      "updatedAt": "2026-03-07T19:27:11.330Z"
+    },
+    {
+      "id": "dedef9b0-ac52-42d0-b240-a6b6853806d8",
+      "voter": "Bjorn",
+      "artistId": "a2",
+      "song": 6,
+      "show": 9,
+      "total": 15,
+      "createdAt": "2026-03-07T19:27:36.193Z",
+      "updatedAt": "2026-03-07T19:27:36.193Z"
+    },
+    {
+      "id": "576fdcef-4822-4417-b5b4-209e2ff13f92",
+      "voter": "Niklas",
+      "artistId": "a3",
+      "song": 4,
+      "show": 2,
+      "total": 6,
+      "createdAt": "2026-03-07T19:29:29.602Z",
+      "updatedAt": "2026-03-07T19:29:29.602Z"
+    },
+    {
+      "id": "ab96d951-709e-47f3-b92d-988b7588ede0",
+      "voter": "Bjorn",
+      "artistId": "a3",
+      "song": 5,
+      "show": 5,
+      "total": 10,
+      "createdAt": "2026-03-07T19:29:34.724Z",
+      "updatedAt": "2026-03-07T19:29:34.724Z"
+    },
+    {
+      "id": "b7743dd4-868f-495a-91ce-e1f749c55a43",
+      "voter": "Vordis",
+      "artistId": "a3",
+      "song": 2,
+      "show": 2,
+      "total": 4,
+      "createdAt": "2026-03-07T19:29:48.400Z",
+      "updatedAt": "2026-03-07T19:46:49.035Z"
+    },
+    {
+      "id": "da7f0284-61fc-4682-b155-ab22200864a4",
+      "voter": "Sarah",
+      "artistId": "a4",
+      "song": 7,
+      "show": 5,
+      "total": 12,
+      "createdAt": "2026-03-07T19:31:09.853Z",
+      "updatedAt": "2026-03-07T19:31:09.853Z"
+    },
+    {
+      "id": "49cb52f6-fd31-4188-90ab-4803c2db7e15",
+      "voter": "Niklas",
+      "artistId": "a4",
+      "song": 4,
+      "show": 3,
+      "total": 7,
+      "createdAt": "2026-03-07T19:31:22.764Z",
+      "updatedAt": "2026-03-07T19:31:22.764Z"
+    },
+    {
+      "id": "d5548c8e-6f0e-4ab8-bdac-20ab233293c9",
+      "voter": "Vordis",
+      "artistId": "a4",
+      "song": 6,
+      "show": 2,
+      "total": 8,
+      "createdAt": "2026-03-07T19:31:26.543Z",
+      "updatedAt": "2026-03-07T19:46:46.874Z"
+    },
+    {
+      "id": "b4d3a4e3-23a7-4b79-9846-6cec53b8e3a8",
+      "voter": "Liva",
+      "artistId": "a4",
+      "song": 7,
+      "show": 4,
+      "total": 11,
+      "createdAt": "2026-03-07T19:32:15.131Z",
+      "updatedAt": "2026-03-07T20:14:18.207Z"
+    },
+    {
+      "id": "8efd51bf-7c14-4800-965b-3b2f603fa19b",
+      "voter": "Bjorn",
+      "artistId": "a4",
+      "song": 8,
+      "show": 9,
+      "total": 17,
+      "createdAt": "2026-03-07T19:35:51.255Z",
+      "updatedAt": "2026-03-07T19:35:51.255Z"
+    },
+    {
+      "id": "e93070be-2b52-419b-8ee1-ff360ce777df",
+      "voter": "Niklas",
+      "artistId": "a5",
+      "song": 8,
+      "show": 8,
+      "total": 16,
+      "createdAt": "2026-03-07T19:37:01.899Z",
+      "updatedAt": "2026-03-07T19:37:04.141Z"
+    },
+    {
+      "id": "aa502656-b9fa-40a8-a983-7b56b1984db6",
+      "voter": "Vordis",
+      "artistId": "a5",
+      "song": 8,
+      "show": 8,
+      "total": 16,
+      "createdAt": "2026-03-07T19:37:25.556Z",
+      "updatedAt": "2026-03-07T19:46:53.278Z"
+    },
+    {
+      "id": "e9722146-9ae2-412c-90d0-891764bb2942",
+      "voter": "Sarah",
+      "artistId": "a5",
+      "song": 2,
+      "show": 6,
+      "total": 8,
+      "createdAt": "2026-03-07T19:37:25.599Z",
+      "updatedAt": "2026-03-07T19:37:25.599Z"
+    },
+    {
+      "id": "fa20f68e-149a-4200-bea8-497f1d7cfb0f",
+      "voter": "Bjorn",
+      "artistId": "a5",
+      "song": 8,
+      "show": 8,
+      "total": 16,
+      "createdAt": "2026-03-07T19:37:41.567Z",
+      "updatedAt": "2026-03-07T19:41:53.085Z"
+    },
+    {
+      "id": "3b633f94-b46e-4496-a2ac-0f67b08e7109",
+      "voter": "Niklas",
+      "artistId": "a6",
+      "song": 9,
+      "show": 9,
+      "total": 18,
+      "createdAt": "2026-03-07T19:44:04.826Z",
+      "updatedAt": "2026-03-07T19:46:42.032Z"
+    },
+    {
+      "id": "311d3b97-6c17-4560-a5d5-0c37df336616",
+      "voter": "Vordis",
+      "artistId": "a6",
+      "song": 9,
+      "show": 7,
+      "total": 16,
+      "createdAt": "2026-03-07T19:44:20.249Z",
+      "updatedAt": "2026-03-07T19:46:56.010Z"
+    },
+    {
+      "id": "f915419e-6b8d-44ac-bf6e-fb3479507b12",
+      "voter": "Sarah",
+      "artistId": "a6",
+      "song": 9,
+      "show": 8,
+      "total": 17,
+      "createdAt": "2026-03-07T19:44:22.476Z",
+      "updatedAt": "2026-03-07T19:46:19.934Z"
+    },
+    {
+      "id": "3f89a057-3a85-4465-9f8e-915967693086",
+      "voter": "Bjorn",
+      "artistId": "a6",
+      "song": 7,
+      "show": 7,
+      "total": 14,
+      "createdAt": "2026-03-07T19:44:26.047Z",
+      "updatedAt": "2026-03-07T19:45:37.233Z"
+    },
+    {
+      "id": "4fa12c41-01c1-42dc-8488-ae131d6d416d",
+      "voter": "Liva",
+      "artistId": "a6",
+      "song": 7,
+      "show": 7,
+      "total": 14,
+      "createdAt": "2026-03-07T19:45:08.756Z",
+      "updatedAt": "2026-03-07T20:14:11.828Z"
+    },
+    {
+      "id": "e82c36a2-a5b1-410e-b854-c55727ba5b86",
+      "voter": "Liva",
+      "artistId": "a5",
+      "song": 6,
+      "show": 7,
+      "total": 13,
+      "createdAt": "2026-03-07T19:46:51.527Z",
+      "updatedAt": "2026-03-07T20:14:15.286Z"
+    },
+    {
+      "id": "d7af4572-9f93-4674-9eec-2c6dda56f642",
+      "voter": "Michael",
+      "artistId": "a1",
+      "song": 9,
+      "show": 7,
+      "total": 16,
+      "createdAt": "2026-03-07T19:47:39.951Z",
+      "updatedAt": "2026-03-07T20:22:58.374Z"
+    },
+    {
+      "id": "cd61eef7-0134-4768-9178-01edac304a96",
+      "voter": "Michael",
+      "artistId": "a2",
+      "song": 7,
+      "show": 10,
+      "total": 17,
+      "createdAt": "2026-03-07T19:47:51.633Z",
+      "updatedAt": "2026-03-07T20:22:54.713Z"
+    },
+    {
+      "id": "d49414f8-e2ad-4745-80f2-314e62594b32",
+      "voter": "Michael",
+      "artistId": "a3",
+      "song": 4,
+      "show": 4,
+      "total": 8,
+      "createdAt": "2026-03-07T19:48:06.542Z",
+      "updatedAt": "2026-03-07T20:22:52.789Z"
+    },
+    {
+      "id": "0fdf9597-0b55-4b1c-ac16-2730a8a23c25",
+      "voter": "Michael",
+      "artistId": "a4",
+      "song": 9,
+      "show": 8,
+      "total": 17,
+      "createdAt": "2026-03-07T19:48:34.136Z",
+      "updatedAt": "2026-03-07T20:22:50.389Z"
+    },
+    {
+      "id": "f992d54d-92a9-4c5f-b82e-03c858335f6b",
+      "voter": "Michael",
+      "artistId": "a5",
+      "song": 9,
+      "show": 3,
+      "total": 12,
+      "createdAt": "2026-03-07T19:49:15.917Z",
+      "updatedAt": "2026-03-07T20:22:47.203Z"
+    },
+    {
+      "id": "c73ca196-69b2-4509-8ccd-84300354a228",
+      "voter": "Michael",
+      "artistId": "a6",
+      "song": 6,
+      "show": 6,
+      "total": 12,
+      "createdAt": "2026-03-07T19:49:24.130Z",
+      "updatedAt": "2026-03-07T19:49:24.130Z"
+    },
+    {
+      "id": "96499ce1-8610-4d60-819b-d11593ebad0f",
+      "voter": "Bjorn",
+      "artistId": "a7",
+      "song": 9,
+      "show": 9,
+      "total": 18,
+      "createdAt": "2026-03-07T19:49:36.678Z",
+      "updatedAt": "2026-03-07T20:09:49.111Z"
+    },
+    {
+      "id": "d7fb9ae4-0760-408c-a026-64824917c40e",
+      "voter": "Liva",
+      "artistId": "a7",
+      "song": 6,
+      "show": 5,
+      "total": 11,
+      "createdAt": "2026-03-07T19:49:51.422Z",
+      "updatedAt": "2026-03-07T20:14:10.182Z"
+    },
+    {
+      "id": "4bc21ece-1460-4a1c-b53a-8b204d79040e",
+      "voter": "Marianne",
+      "artistId": "a1",
+      "song": 7,
+      "show": 6,
+      "total": 13,
+      "createdAt": "2026-03-07T19:50:16.777Z",
+      "updatedAt": "2026-03-07T19:50:24.051Z"
+    },
+    {
+      "id": "601129d5-6694-46a6-b3b0-7a131d14158d",
+      "voter": "Marianne",
+      "artistId": "a2",
+      "song": 10,
+      "show": 7,
+      "total": 17,
+      "createdAt": "2026-03-07T19:50:35.076Z",
+      "updatedAt": "2026-03-07T19:50:35.076Z"
+    },
+    {
+      "id": "e07428fc-9380-441a-b479-6ae314573453",
+      "voter": "Marianne",
+      "artistId": "a5",
+      "song": 9,
+      "show": 7,
+      "total": 16,
+      "createdAt": "2026-03-07T19:51:07.874Z",
+      "updatedAt": "2026-03-07T19:51:07.874Z"
+    },
+    {
+      "id": "0f8e2567-2a6c-43fb-9693-4c69b8abd8e9",
+      "voter": "Michael",
+      "artistId": "a7",
+      "song": 9,
+      "show": 10,
+      "total": 19,
+      "createdAt": "2026-03-07T19:51:27.789Z",
+      "updatedAt": "2026-03-07T19:51:27.789Z"
+    },
+    {
+      "id": "b35fd8a1-c3e4-49ec-a2f4-f4f7dea3bb5e",
+      "voter": "Sarah",
+      "artistId": "a7",
+      "song": 8,
+      "show": 8,
+      "total": 16,
+      "createdAt": "2026-03-07T19:51:37.726Z",
+      "updatedAt": "2026-03-07T19:51:37.726Z"
+    },
+    {
+      "id": "14cbb250-95a4-456d-a8aa-7fd9e5c4e5c6",
+      "voter": "Vordis",
+      "artistId": "a7",
+      "song": 8,
+      "show": 9,
+      "total": 17,
+      "createdAt": "2026-03-07T19:51:45.155Z",
+      "updatedAt": "2026-03-07T19:51:45.155Z"
+    },
+    {
+      "id": "cdf00551-9121-4dd6-8583-28db8abe358b",
+      "voter": "Marianne",
+      "artistId": "a4",
+      "song": 8,
+      "show": 8,
+      "total": 16,
+      "createdAt": "2026-03-07T19:53:03.825Z",
+      "updatedAt": "2026-03-07T19:53:03.825Z"
+    },
+    {
+      "id": "9ea9a97d-7066-4cf8-9c82-b54ecdad6797",
+      "voter": "Marianne",
+      "artistId": "a6",
+      "song": 8,
+      "show": 8,
+      "total": 16,
+      "createdAt": "2026-03-07T19:54:00.725Z",
+      "updatedAt": "2026-03-07T19:54:00.725Z"
+    },
+    {
+      "id": "125ff52d-a467-4a98-826e-6f6b2964da82",
+      "voter": "Niklas",
+      "artistId": "a7",
+      "song": 8,
+      "show": 9,
+      "total": 17,
+      "createdAt": "2026-03-07T19:54:05.353Z",
+      "updatedAt": "2026-03-07T19:54:05.353Z"
+    },
+    {
+      "id": "179c3960-eb01-45b3-817e-51460b8fda46",
+      "voter": "Marianne",
+      "artistId": "a7",
+      "song": 7,
+      "show": 7,
+      "total": 14,
+      "createdAt": "2026-03-07T19:54:07.886Z",
+      "updatedAt": "2026-03-07T19:54:07.886Z"
+    },
+    {
+      "id": "527d22ed-6308-48d5-8dd1-6832a604bf00",
+      "voter": "Michael",
+      "artistId": "a8",
+      "song": 2,
+      "show": 3,
+      "total": 5,
+      "createdAt": "2026-03-07T19:55:49.819Z",
+      "updatedAt": "2026-03-07T19:55:49.819Z"
+    },
+    {
+      "id": "93578c7a-1457-4b79-b8d1-19ea1e2e2d69",
+      "voter": "Bjorn",
+      "artistId": "a8",
+      "song": 6,
+      "show": 6,
+      "total": 12,
+      "createdAt": "2026-03-07T19:56:24.619Z",
+      "updatedAt": "2026-03-07T19:56:24.619Z"
+    },
+    {
+      "id": "4bba4c72-85c1-4be2-9b4d-9cf4b20ca5ab",
+      "voter": "Sarah",
+      "artistId": "a8",
+      "song": 4,
+      "show": 4,
+      "total": 8,
+      "createdAt": "2026-03-07T19:56:33.200Z",
+      "updatedAt": "2026-03-07T19:56:33.200Z"
+    },
+    {
+      "id": "24cd1d84-1ba7-4e43-9c74-20e414ced907",
+      "voter": "Liva",
+      "artistId": "a8",
+      "song": 5,
+      "show": 6,
+      "total": 11,
+      "createdAt": "2026-03-07T19:56:53.607Z",
+      "updatedAt": "2026-03-07T20:13:39.794Z"
+    },
+    {
+      "id": "8f9448d1-aab3-4c11-84fe-7bce99c01863",
+      "voter": "Vordis",
+      "artistId": "a8",
+      "song": 3,
+      "show": 4,
+      "total": 7,
+      "createdAt": "2026-03-07T19:57:19.478Z",
+      "updatedAt": "2026-03-07T19:57:19.478Z"
+    },
+    {
+      "id": "d24197ab-9b65-427c-8e4f-b120b472aed2",
+      "voter": "Marianne",
+      "artistId": "a8",
+      "song": 4,
+      "show": 2,
+      "total": 6,
+      "createdAt": "2026-03-07T19:57:52.884Z",
+      "updatedAt": "2026-03-07T19:57:52.884Z"
+    },
+    {
+      "id": "b8ee1a70-874b-4e43-aa86-b448be7fe7bf",
+      "voter": "Liva",
+      "artistId": "a12",
+      "song": 5,
+      "show": 5,
+      "total": 10,
+      "createdAt": "2026-03-07T19:58:13.736Z",
+      "updatedAt": "2026-03-07T20:17:01.398Z"
+    },
+    {
+      "id": "235662cd-0e61-402e-9811-641335e976b2",
+      "voter": "Niklas",
+      "artistId": "a8",
+      "song": 7,
+      "show": 7,
+      "total": 14,
+      "createdAt": "2026-03-07T19:59:58.836Z",
+      "updatedAt": "2026-03-07T19:59:58.836Z"
+    },
+    {
+      "id": "6c4b24dc-7ba7-4a5c-82a5-0d89306ecfe4",
+      "voter": "Niklas",
+      "artistId": "a9",
+      "song": 3,
+      "show": 3,
+      "total": 6,
+      "createdAt": "2026-03-07T20:00:04.497Z",
+      "updatedAt": "2026-03-07T20:00:04.497Z"
+    },
+    {
+      "id": "dc837fe2-92d4-4a99-9783-6d36b0046b20",
+      "voter": "Bjorn",
+      "artistId": "a9",
+      "song": 4,
+      "show": 4,
+      "total": 8,
+      "createdAt": "2026-03-07T20:01:18.021Z",
+      "updatedAt": "2026-03-07T20:04:52.150Z"
+    },
+    {
+      "id": "23a152a3-cf29-46ba-969b-c8eca93f0626",
+      "voter": "Liva",
+      "artistId": "a9",
+      "song": 2,
+      "show": 4,
+      "total": 6,
+      "createdAt": "2026-03-07T20:01:47.531Z",
+      "updatedAt": "2026-03-07T20:13:37.117Z"
+    },
+    {
+      "id": "6c76b136-1468-464c-b455-d7e40df37f51",
+      "voter": "Vordis",
+      "artistId": "a9",
+      "song": 2,
+      "show": 2,
+      "total": 4,
+      "createdAt": "2026-03-07T20:03:08.027Z",
+      "updatedAt": "2026-03-07T20:03:08.027Z"
+    },
+    {
+      "id": "4373f483-5a19-42b4-be40-4f20e5a4e58b",
+      "voter": "Marianne",
+      "artistId": "a9",
+      "song": 6,
+      "show": 6,
+      "total": 12,
+      "createdAt": "2026-03-07T20:03:18.097Z",
+      "updatedAt": "2026-03-07T20:03:18.097Z"
+    },
+    {
+      "id": "31286035-f3fc-433b-8899-d807dc8bc0f7",
+      "voter": "Sarah",
+      "artistId": "a10",
+      "song": 5,
+      "show": 9,
+      "total": 14,
+      "createdAt": "2026-03-07T20:06:59.806Z",
+      "updatedAt": "2026-03-07T20:06:59.806Z"
+    },
+    {
+      "id": "df52c398-57d3-4d81-af0e-8bbd83517e9a",
+      "voter": "Sarah",
+      "artistId": "a9",
+      "song": 2,
+      "show": 2,
+      "total": 4,
+      "createdAt": "2026-03-07T20:07:01.204Z",
+      "updatedAt": "2026-03-07T20:07:01.204Z"
+    },
+    {
+      "id": "21e10d3a-4f16-4da1-a267-e277997b0298",
+      "voter": "Liva",
+      "artistId": "a10",
+      "song": 7,
+      "show": 9,
+      "total": 16,
+      "createdAt": "2026-03-07T20:07:27.094Z",
+      "updatedAt": "2026-03-07T20:13:33.807Z"
+    },
+    {
+      "id": "d6c7f179-b14b-4343-893c-7af70d53fb68",
+      "voter": "Vordis",
+      "artistId": "a10",
+      "song": 8,
+      "show": 9,
+      "total": 17,
+      "createdAt": "2026-03-07T20:07:32.767Z",
+      "updatedAt": "2026-03-07T20:07:32.767Z"
+    },
+    {
+      "id": "47adbd1f-f4d0-4879-a755-c6836e8bb222",
+      "voter": "Niklas",
+      "artistId": "a10",
+      "song": 5,
+      "show": 6,
+      "total": 11,
+      "createdAt": "2026-03-07T20:07:44.287Z",
+      "updatedAt": "2026-03-07T20:07:44.287Z"
+    },
+    {
+      "id": "468fb929-d0bd-4f31-b95a-7c423541596f",
+      "voter": "Bjorn",
+      "artistId": "a10",
+      "song": 10,
+      "show": 10,
+      "total": 20,
+      "createdAt": "2026-03-07T20:09:58.796Z",
+      "updatedAt": "2026-03-07T20:12:38.749Z"
+    },
+    {
+      "id": "fd81da26-b042-40b8-88ae-340552d4e540",
+      "voter": "Liva",
+      "artistId": "a11",
+      "song": 5,
+      "show": 4,
+      "total": 9,
+      "createdAt": "2026-03-07T20:12:18.343Z",
+      "updatedAt": "2026-03-07T20:13:31.853Z"
+    },
+    {
+      "id": "2ab31fb7-077b-48c8-aad6-85ae54936ae8",
+      "voter": "Marianne",
+      "artistId": "a10",
+      "song": 4,
+      "show": 4,
+      "total": 8,
+      "createdAt": "2026-03-07T20:12:38.408Z",
+      "updatedAt": "2026-03-07T20:12:38.408Z"
+    },
+    {
+      "id": "ce5a47b0-01d1-4ca0-ad79-241edf468c9e",
+      "voter": "Vordis",
+      "artistId": "a11",
+      "song": 9,
+      "show": 4,
+      "total": 13,
+      "createdAt": "2026-03-07T20:12:47.338Z",
+      "updatedAt": "2026-03-07T20:12:54.747Z"
+    },
+    {
+      "id": "193bed05-b95f-4cbe-9ee6-71d4beebd804",
+      "voter": "Niklas",
+      "artistId": "a11",
+      "song": 10,
+      "show": 10,
+      "total": 20,
+      "createdAt": "2026-03-07T20:13:04.531Z",
+      "updatedAt": "2026-03-07T20:19:41.745Z"
+    },
+    {
+      "id": "d9bc9167-91ba-41ad-ad2f-d7c7b45e216d",
+      "voter": "Marianne",
+      "artistId": "a11",
+      "song": 10,
+      "show": 10,
+      "total": 20,
+      "createdAt": "2026-03-07T20:13:09.510Z",
+      "updatedAt": "2026-03-07T20:13:09.510Z"
+    },
+    {
+      "id": "aebd9de8-7b7b-4c0e-9148-5687eaa1db49",
+      "voter": "Sarah",
+      "artistId": "a11",
+      "song": 9,
+      "show": 4,
+      "total": 13,
+      "createdAt": "2026-03-07T20:14:29.345Z",
+      "updatedAt": "2026-03-07T20:14:29.345Z"
+    },
+    {
+      "id": "f4e2a5ae-d80d-4210-8918-4b2f83b1ec53",
+      "voter": "Bjorn",
+      "artistId": "a11",
+      "song": 5,
+      "show": 6,
+      "total": 11,
+      "createdAt": "2026-03-07T20:16:35.694Z",
+      "updatedAt": "2026-03-07T20:16:35.694Z"
+    },
+    {
+      "id": "ec9c19d2-0e0c-4981-a968-a44b8fdbaef3",
+      "voter": "Sarah",
+      "artistId": "a12",
+      "song": 7,
+      "show": 7,
+      "total": 14,
+      "createdAt": "2026-03-07T20:18:58.113Z",
+      "updatedAt": "2026-03-07T20:18:58.113Z"
+    },
+    {
+      "id": "de327ecb-81fa-4d3a-8f6d-adb89f1b1cee",
+      "voter": "Niklas",
+      "artistId": "a12",
+      "song": 8,
+      "show": 9,
+      "total": 17,
+      "createdAt": "2026-03-07T20:19:05.633Z",
+      "updatedAt": "2026-03-07T20:19:46.979Z"
+    },
+    {
+      "id": "291998c2-8758-4d24-8bc2-f358a624e14a",
+      "voter": "Vordis",
+      "artistId": "a12",
+      "song": 9,
+      "show": 9,
+      "total": 18,
+      "createdAt": "2026-03-07T20:19:17.057Z",
+      "updatedAt": "2026-03-07T20:19:17.057Z"
+    },
+    {
+      "id": "53d94a1c-7579-4f6e-9f5b-7a7b68afe1f4",
+      "voter": "Bjorn",
+      "artistId": "a12",
+      "song": 2,
+      "show": 2,
+      "total": 4,
+      "createdAt": "2026-03-07T20:20:04.130Z",
+      "updatedAt": "2026-03-07T20:22:31.854Z"
+    },
+    {
+      "id": "e21f2d66-e149-4f75-a447-44253bd250d2",
+      "voter": "Michael",
+      "artistId": "a9",
+      "song": 1,
+      "show": 1,
+      "total": 2,
+      "createdAt": "2026-03-07T20:21:59.400Z",
+      "updatedAt": "2026-03-07T20:21:59.400Z"
+    },
+    {
+      "id": "e140f2a7-27ba-4e4c-81ad-aa9c40e19101",
+      "voter": "Michael",
+      "artistId": "a10",
+      "song": 4,
+      "show": 7,
+      "total": 11,
+      "createdAt": "2026-03-07T20:22:05.611Z",
+      "updatedAt": "2026-03-07T20:22:05.611Z"
+    },
+    {
+      "id": "f1a9fb99-7623-43c4-93a1-e2254900d958",
+      "voter": "Michael",
+      "artistId": "a11",
+      "song": 10,
+      "show": 4,
+      "total": 14,
+      "createdAt": "2026-03-07T20:22:12.521Z",
+      "updatedAt": "2026-03-07T20:22:12.521Z"
+    },
+    {
+      "id": "3006b814-6b92-4d9e-b5b7-a2d1e30fd3c0",
+      "voter": "Michael",
+      "artistId": "a12",
+      "song": 10,
+      "show": 10,
+      "total": 20,
+      "createdAt": "2026-03-07T20:22:18.139Z",
+      "updatedAt": "2026-03-07T20:22:18.139Z"
+    },
+    {
+      "id": "451d50b5-3480-4883-99b9-ec9c5fc2d127",
+      "voter": "Jane",
+      "artistId": "a1",
+      "song": 9,
+      "show": 9,
+      "total": 18,
+      "createdAt": "2026-03-07T20:36:17.107Z",
+      "updatedAt": "2026-03-07T20:36:17.107Z"
+    },
+    {
+      "id": "6fe42450-d939-4a0f-b525-de8f790efe54",
+      "voter": "Jane",
+      "artistId": "a2",
+      "song": 9,
+      "show": 9,
+      "total": 18,
+      "createdAt": "2026-03-07T20:36:22.371Z",
+      "updatedAt": "2026-03-07T20:36:22.371Z"
+    },
+    {
+      "id": "e1adc5d6-340d-4e92-9c02-209f9f0b5800",
+      "voter": "Jane",
+      "artistId": "a3",
+      "song": 5,
+      "show": 3,
+      "total": 8,
+      "createdAt": "2026-03-07T20:36:41.211Z",
+      "updatedAt": "2026-03-07T20:36:41.211Z"
+    },
+    {
+      "id": "e0dae4ec-b7d1-4610-be1c-c7cea3a8d4c0",
+      "voter": "Jane",
+      "artistId": "a4",
+      "song": 5,
+      "show": 4,
+      "total": 9,
+      "createdAt": "2026-03-07T20:36:50.562Z",
+      "updatedAt": "2026-03-07T20:36:50.562Z"
+    },
+    {
+      "id": "06041152-3b87-4dab-b731-ce3b18ca8d75",
+      "voter": "Jane",
+      "artistId": "a5",
+      "song": 7,
+      "show": 9,
+      "total": 16,
+      "createdAt": "2026-03-07T20:37:40.756Z",
+      "updatedAt": "2026-03-07T20:37:40.756Z"
+    },
+    {
+      "id": "0300a557-4cfa-4dcc-b8d6-4723ef9b406b",
+      "voter": "Jane",
+      "artistId": "a6",
+      "song": 9,
+      "show": 7,
+      "total": 16,
+      "createdAt": "2026-03-07T20:37:55.889Z",
+      "updatedAt": "2026-03-07T20:37:55.889Z"
+    },
+    {
+      "id": "c0bc569a-651f-44c2-82ec-27fae737015c",
+      "voter": "Jane",
+      "artistId": "a7",
+      "song": 10,
+      "show": 8,
+      "total": 18,
+      "createdAt": "2026-03-07T20:38:21.827Z",
+      "updatedAt": "2026-03-07T20:38:21.827Z"
+    },
+    {
+      "id": "c053e18d-8c93-4591-8b0b-e561a2edf6ea",
+      "voter": "Jane",
+      "artistId": "a8",
+      "song": 8,
+      "show": 6,
+      "total": 14,
+      "createdAt": "2026-03-07T20:38:44.438Z",
+      "updatedAt": "2026-03-07T20:38:44.438Z"
+    },
+    {
+      "id": "df60e62c-52e4-4d3a-aa97-6751bed0308d",
+      "voter": "Jane",
+      "artistId": "a9",
+      "song": 3,
+      "show": 2,
+      "total": 5,
+      "createdAt": "2026-03-07T20:38:48.806Z",
+      "updatedAt": "2026-03-07T20:38:48.806Z"
+    },
+    {
+      "id": "33c0dc37-63f9-42a5-8047-e98c19fa6d4d",
+      "voter": "Jane",
+      "artistId": "a12",
+      "song": 3,
+      "show": 3,
+      "total": 6,
+      "createdAt": "2026-03-07T20:39:31.134Z",
+      "updatedAt": "2026-03-07T20:39:31.134Z"
+    },
+    {
+      "id": "e3c5c6bc-2628-4ad9-b518-099ddff70ccd",
+      "voter": "Jane",
+      "artistId": "a11",
+      "song": 5,
+      "show": 3,
+      "total": 8,
+      "createdAt": "2026-03-07T20:39:41.088Z",
+      "updatedAt": "2026-03-07T20:39:41.088Z"
+    }
+  ]
 }

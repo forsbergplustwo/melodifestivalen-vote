@@ -1,0 +1,13 @@
+{
+  "id": "eurovision-2026",
+  "name": "Eurovision Song Contest 2026",
+  "country": "🇪🇺",
+  "type": "eurovision",
+  "subEvents": ["semi-1", "semi-2", "final"],
+  "activeSubEvent": "semi-1",
+  "liveSource": {
+    "url": "https://eurovisionworld.com/eurovision/2026",
+    "tableIds": []
+  },
+  "artists": []
+}
