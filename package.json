@@ -4,11 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:tail": "next dev --hostname 0.0.0.0 --port 3020",
     "build": "next build",
     "start": "next start",
+    "start:tail": "next start --hostname 0.0.0.0 --port 3020",
     "lint": "eslint"
   },
   "dependencies": {
+    "@radix-ui/react-slider": "^1.2.4",
     "next": "16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3"

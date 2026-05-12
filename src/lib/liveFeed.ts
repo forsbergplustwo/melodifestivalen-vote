@@ -30,6 +30,20 @@ const maxHistoryFrames = 400;
 
 let previousPointsByArtistId = new Map<string, number>();
 
+type LiveSourceSongInfo = [string, string, ...unknown[]];
+type LiveSourceSongs = {
+  songs: Record<string, LiveSourceSongInfo>;
+};
+type LiveSourceTableCell = string | number | null | undefined;
+type LiveSourceTableRow = LiveSourceTableCell[];
+type LiveSourceTableColumn = { ti?: string };
+type LiveSourceTable = {
+  ro?: LiveSourceTableRow[];
+  at?: LiveSourceTableRow[];
+  co?: LiveSourceTableColumn[];
+};
+type LiveSourceTables = Record<string, LiveSourceTable>;
+
 function extractObject(source: string, variableName: string): string {
   const startRegex = new RegExp(`${variableName}\\s*=\\s*\\{`);
   const startMatch = startRegex.exec(source);
@@ -53,7 +67,7 @@ function extractObject(source: string, variableName: string): string {
   throw new Error(`Could not extract ${variableName} — unbalanced braces`);
 }
 
-function evaluateObject(text: string): any {
+function evaluateObject(text: string): unknown {
   return vm.runInNewContext(`(${text})`, {}, { timeout: 1000 });
 }
 
@@ -135,13 +149,11 @@ export async function fetchLiveFeed(eventId?: string): Promise<LiveFeedResponse>
   const nationalSongsRaw = extractObject(html, "national_songs");
   const nationalTablesRaw = extractObject(html, "national_tables");
 
-  const nationalSongs = evaluateObject(nationalSongsRaw) as {
-    songs: Record<string, [string, string, ...unknown[]]>;
-  };
-  const nationalTables = evaluateObject(nationalTablesRaw) as Record<string, any>;
+  const nationalSongs = evaluateObject(nationalSongsRaw) as LiveSourceSongs;
+  const nationalTables = evaluateObject(nationalTablesRaw) as LiveSourceTables;
 
   // Try configured table IDs first, then fall back to largest table
-  let finalTable: any = null;
+  let finalTable: LiveSourceTable | null = null;
   for (const tableId of config.liveSource.tableIds) {
     if (nationalTables[tableId]?.ro && nationalTables[tableId]?.at) {
       finalTable = nationalTables[tableId];
@@ -152,8 +164,8 @@ export async function fetchLiveFeed(eventId?: string): Promise<LiveFeedResponse>
   if (!finalTable) {
     const minEntries = config.artists.length || 6;
     const candidates = Object.entries(nationalTables)
-      .filter(([, table]: [string, any]) => table?.ro?.length >= minEntries && table?.at?.length >= minEntries)
-      .sort(([, a]: [string, any], [, b]: [string, any]) => (b.ro?.length ?? 0) - (a.ro?.length ?? 0));
+      .filter(([, table]) => (table.ro?.length ?? 0) >= minEntries && (table.at?.length ?? 0) >= minEntries)
+      .sort(([, a], [, b]) => (b.ro?.length ?? 0) - (a.ro?.length ?? 0));
 
     finalTable = candidates[0]?.[1];
   }
@@ -169,8 +181,8 @@ export async function fetchLiveFeed(eventId?: string): Promise<LiveFeedResponse>
   const pointsCol = totalIdx >= 0 ? totalIdx : 2;
   const runningCol = runningIdx >= 0 ? runningIdx : columns.length - 1;
 
-  const standings: LiveStanding[] = finalTable.ro.map((row: any[], index: number) => {
-    const songRow = finalTable.at[index];
+  const standings: LiveStanding[] = finalTable.ro.map((row, index: number) => {
+    const songRow = finalTable.at?.[index];
     const songId = String(songRow?.[0] ?? "");
     const songInfo = nationalSongs.songs[songId] ?? ["Unknown", "Unknown"];
     const artist = String(songInfo[0] ?? "Unknown");

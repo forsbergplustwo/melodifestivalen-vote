@@ -1,6 +1,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 import { getActiveEventId, getEventConfig, eventStateFileName } from "./eventConfig";
+import { generateRoomCode, normalizeRoomCode } from "./rooms";
 
 type Artist = { id: string; name: string; song?: string; country?: string; flag?: string; imageUrl?: string };
 type Vote = {
@@ -14,15 +15,34 @@ type Vote = {
   updatedAt: string;
 };
 
-type State = { eventId: string; artists: Artist[]; votes: Vote[] };
+type State = { eventId: string; roomCode: string; artists: Artist[]; votes: Vote[] };
 
 const dataDir = path.join(process.cwd(), "data");
+const defaultRoomCode = "GLOBAL";
 
-function stateFilePath(eventId: string, subEvent?: string): string {
+function normalizeRoomOrThrow(roomCode?: string) {
+  const normalized = normalizeRoomCode(roomCode ?? defaultRoomCode);
+  if (!normalized) {
+    throw new Error("Invalid room code");
+  }
+  return normalized;
+}
+
+function safeSegment(value: string): string {
+  return value.replace(/[^a-zA-Z0-9_-]/g, "_");
+}
+
+function roomStateFilePath(eventId: string, roomCode: string, subEvent?: string): string {
+  const eventSegment = safeSegment(eventId);
+  const subEventSegment = safeSegment(subEvent ?? "default");
+  return path.join(dataDir, "rooms", eventSegment, subEventSegment, `${roomCode}.json`);
+}
+
+function legacyStateFilePath(eventId: string, subEvent?: string): string {
   return path.join(dataDir, eventStateFileName(eventId, subEvent));
 }
 
-async function ensureStateFile(filePath: string, eventId: string) {
+async function ensureStateFile(filePath: string, eventId: string, roomCode: string) {
   try {
     await fs.access(filePath);
   } catch {
@@ -44,33 +64,77 @@ async function ensureStateFile(filePath: string, eventId: string) {
       // no config found, empty artists
     }
 
-    await fs.writeFile(filePath, JSON.stringify({ eventId, artists, votes: [] } satisfies State, null, 2), "utf8");
+    await fs.writeFile(filePath, JSON.stringify({ eventId, roomCode, artists, votes: [] } satisfies State, null, 2), "utf8");
   }
 }
 
-export async function readState(eventId?: string, subEvent?: string): Promise<State> {
+export async function roomExists(roomCode: string, eventId?: string, subEvent?: string): Promise<boolean> {
+  const normalizedRoomCode = normalizeRoomOrThrow(roomCode);
   const eid = eventId ?? (await getActiveEventId());
   const sub = subEvent ?? (await getEventConfig(eid).then((c) => c.activeSubEvent).catch(() => undefined));
-  const fp = stateFilePath(eid, sub);
-  await ensureStateFile(fp, eid);
+  const fp = roomStateFilePath(eid, normalizedRoomCode, sub);
+  try {
+    await fs.access(fp);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function createRoom(eventId?: string, subEvent?: string): Promise<string> {
+  const eid = eventId ?? (await getActiveEventId());
+  const sub = subEvent ?? (await getEventConfig(eid).then((c) => c.activeSubEvent).catch(() => undefined));
+
+  for (let attempt = 0; attempt < 12; attempt++) {
+    const nextRoomCode = generateRoomCode();
+    const exists = await roomExists(nextRoomCode, eid, sub);
+    if (exists) continue;
+    await ensureStateFile(roomStateFilePath(eid, nextRoomCode, sub), eid, nextRoomCode);
+    return nextRoomCode;
+  }
+
+  throw new Error("Could not generate a unique room code");
+}
+
+export async function readState(eventId?: string, subEvent?: string, roomCode?: string): Promise<State> {
+  const normalizedRoomCode = normalizeRoomOrThrow(roomCode);
+  const eid = eventId ?? (await getActiveEventId());
+  const sub = subEvent ?? (await getEventConfig(eid).then((c) => c.activeSubEvent).catch(() => undefined));
+  const fp = roomStateFilePath(eid, normalizedRoomCode, sub);
+  if (normalizedRoomCode === defaultRoomCode) {
+    try {
+      await fs.access(fp);
+    } catch {
+      const legacyPath = legacyStateFilePath(eid, sub);
+      try {
+        await fs.access(legacyPath);
+        await fs.mkdir(path.dirname(fp), { recursive: true });
+        await fs.copyFile(legacyPath, fp);
+      } catch {
+        // no legacy file found, continue with fresh room state
+      }
+    }
+  }
+  await ensureStateFile(fp, eid, normalizedRoomCode);
   const content = await fs.readFile(fp, "utf8");
   return JSON.parse(content) as State;
 }
 
-export async function writeState(nextState: State, eventId?: string, subEvent?: string): Promise<void> {
+export async function writeState(nextState: State, eventId?: string, subEvent?: string, roomCode?: string): Promise<void> {
+  const normalizedRoomCode = normalizeRoomOrThrow(roomCode ?? nextState.roomCode);
   const eid = eventId ?? nextState.eventId ?? (await getActiveEventId());
   const sub = subEvent ?? (await getEventConfig(eid).then((c) => c.activeSubEvent).catch(() => undefined));
-  const fp = stateFilePath(eid, sub);
+  const fp = roomStateFilePath(eid, normalizedRoomCode, sub);
   await fs.writeFile(fp, JSON.stringify(nextState, null, 2), "utf8");
 }
 
-export async function upsertVote(input: { voter: string; artistId: string; song: number; show: number }, eventId?: string) {
+export async function upsertVote(input: { voter: string; artistId: string; song: number; show: number }, eventId?: string, roomCode?: string) {
   const safeSong = Math.max(1, Math.min(10, Number(input.song)));
   const safeShow = Math.max(1, Math.min(10, Number(input.show)));
   const total = safeSong + safeShow;
 
   const eid = eventId ?? (await getActiveEventId());
-  const state = await readState(eid);
+  const state = await readState(eid, undefined, roomCode);
   const existingVote = state.votes.find(
     (vote) => vote.voter.toLowerCase() === input.voter.toLowerCase() && vote.artistId === input.artistId
   );
@@ -94,7 +158,7 @@ export async function upsertVote(input: { voter: string; artistId: string; song:
     });
   }
 
-  await writeState(state, eid);
+  await writeState(state, eid, undefined, roomCode);
   return state;
 }
 
@@ -111,8 +175,8 @@ export function buildLeaderboard(state: State) {
         artistId: artist.id,
         artistName: artist.name,
         songTitle: artist.song ?? "",
-        country: (artist as any).country ?? "",
-        flag: (artist as any).flag ?? "",
+        country: artist.country ?? "",
+        flag: artist.flag ?? "",
         imageUrl: artist.imageUrl ?? "",
         voteCount,
         songAverage,

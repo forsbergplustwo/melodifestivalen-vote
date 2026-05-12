@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 type LiveStanding = {
@@ -22,6 +23,7 @@ type ArtistState = { id: string; name: string; song?: string; imageUrl?: string 
 
 type StateResponse = { artists: ArtistState[] };
 type LiveHistoryResponse = { frames: LiveFeedResponse[] };
+type EventResponse = { active?: { name?: string; country?: string } | null };
 
 function normalize(value: string) {
   return value
@@ -31,12 +33,16 @@ function normalize(value: string) {
     .trim();
 }
 
+const officialEurovisionGradient = "radial-gradient(120% 150% at 90% -3%, #2200ff, #000c54 22.49%, #010a41 33.26%, #010a41 64.14%, #4c0a54 85.82%, #ff0178)";
+const officialEurovisionLogo = "/eurovision-official-logo.svg";
+
 export default function LiveResultsPage() {
   const [data, setData] = useState<LiveFeedResponse | null>(null);
   const [artists, setArtists] = useState<ArtistState[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [eventName, setEventName] = useState("Live Results");
+  const [nowTimestamp, setNowTimestamp] = useState(() => Date.now());
   const [replayFrames, setReplayFrames] = useState<LiveFeedResponse[]>([]);
   const [replayIndex, setReplayIndex] = useState<number | null>(null);
   const [lastChangedAtByArtistId, setLastChangedAtByArtistId] = useState<Record<string, number>>({});
@@ -98,8 +104,8 @@ export default function LiveResultsPage() {
   useEffect(() => {
     fetch("/api/event", { cache: "no-store" })
       .then((r) => r.json())
-      .then((d: any) => {
-        if (d.active?.name) setEventName(`${d.active.country} ${d.active.name} Live Results`);
+      .then((response: EventResponse) => {
+        if (response.active?.name) setEventName(`${response.active.country} ${response.active.name} Live Results`);
       })
       .catch(() => {});
 
@@ -110,7 +116,12 @@ export default function LiveResultsPage() {
         // no-op
       });
 
-    refresh()
+    fetch("/api/live-feed", { cache: "no-store" })
+      .then((response) => {
+        if (!response.ok) throw new Error("Live feed unavailable");
+        return response.json() as Promise<LiveFeedResponse>;
+      })
+      .then((next) => setData(next))
       .catch(() => setError("Could not load live results feed."))
       .finally(() => setLoading(false));
 
@@ -119,9 +130,11 @@ export default function LiveResultsPage() {
         // silent in live mode
       });
     }, 3000);
+    const clockTimer = setInterval(() => setNowTimestamp(Date.now()), 1000);
 
     return () => {
       clearInterval(timer);
+      clearInterval(clockTimer);
       if (replayTimerRef.current) {
         clearInterval(replayTimerRef.current);
         replayTimerRef.current = null;
@@ -168,10 +181,14 @@ export default function LiveResultsPage() {
     }
 
     if (Object.keys(pointUpdates).length) {
-      setLastChangedAtByArtistId((current) => ({ ...current, ...pointUpdates }));
+      queueMicrotask(() => {
+        setLastChangedAtByArtistId((current) => ({ ...current, ...pointUpdates }));
+      });
     }
     if (Object.keys(rankUpdates).length) {
-      setRankChangeByArtistId((current) => ({ ...current, ...rankUpdates }));
+      queueMicrotask(() => {
+        setRankChangeByArtistId((current) => ({ ...current, ...rankUpdates }));
+      });
     }
   }, [displayedData]);
 
@@ -182,19 +199,20 @@ export default function LiveResultsPage() {
     : null;
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-black via-rose-950 to-black text-white">
+    <main
+      className="min-h-screen text-white"
+      style={{
+        backgroundImage: officialEurovisionGradient,
+        backgroundSize: "cover",
+        backgroundAttachment: "fixed",
+        backgroundPosition: "center",
+      }}
+    >
       <div className="mx-auto w-full max-w-6xl px-4 py-6 md:px-8">
-        <header className="mb-4 rounded-2xl border border-red-300/30 bg-black/50 px-4 py-3 backdrop-blur">
-          <div className="mb-2 flex flex-wrap items-center gap-2">
-            <button onClick={() => { window.location.href = "/"; }} className="rounded-xl bg-white/15 px-4 py-2 text-sm font-semibold text-white">
-              Voting
-            </button>
-            <button onClick={() => { window.location.href = "/"; }} className="rounded-xl bg-white/15 px-4 py-2 text-sm font-semibold text-white">
-              Leaderboard
-            </button>
-            <button className="rounded-xl bg-red-400 px-4 py-2 text-sm font-semibold text-black">
-              Live results
-            </button>
+        <header className="mb-3 rounded-xl border border-white/15 bg-black/35 px-4 py-3 backdrop-blur">
+          <div className="mb-2 max-w-[260px]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={officialEurovisionLogo} alt="Eurovision Song Contest official logo" className="w-full object-contain" />
           </div>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="min-w-0">
@@ -217,6 +235,18 @@ export default function LiveResultsPage() {
             </div>
           </div>
         </header>
+
+        <nav className="mb-4 flex gap-1 rounded-xl border border-white/10 bg-black/35 p-1 backdrop-blur" aria-label="Top navigation">
+          <Link href="/" className="flex-1 rounded-lg px-3 py-2 text-center text-sm font-bold text-white/70 transition hover:bg-white/10 hover:text-white">
+            🗳️ Voting
+          </Link>
+          <Link href="/" className="flex-1 rounded-lg px-3 py-2 text-center text-sm font-bold text-white/70 transition hover:bg-white/10 hover:text-white">
+            🏆 Leaderboard
+          </Link>
+          <button className="flex-1 rounded-lg bg-gradient-to-r from-rose-400 to-red-500 px-3 py-2 text-sm font-bold text-white">
+            📺 Live results
+          </button>
+        </nav>
 
         {loading ? (
           <div className="flex items-center justify-center py-12">
@@ -267,9 +297,9 @@ export default function LiveResultsPage() {
           <div className="max-h-[55vh] space-y-2 overflow-y-auto pr-1">
             {displayedData?.standings?.map((row, index) => {
               const changedAt = lastChangedAtByArtistId[row.artistId];
-              const justChanged = changedAt ? Date.now() - changedAt < 6500 : false;
+              const justChanged = changedAt ? nowTimestamp - changedAt < 6500 : false;
               const rankChange = rankChangeByArtistId[row.artistId];
-              const rankChangedRecently = rankChange ? Date.now() - rankChange.at < 6500 : false;
+              const rankChangedRecently = rankChange ? nowTimestamp - rankChange.at < 6500 : false;
 
               return (
                 <div key={row.artistId} className={`grid grid-cols-[72px_1fr_auto_auto] items-center gap-2 rounded-lg px-3 py-2 ${justChanged ? "bg-red-500/20 ring-1 ring-red-300/40" : "bg-white/10"}`}>
