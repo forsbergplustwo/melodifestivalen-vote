@@ -2,6 +2,7 @@ import { promises as fs } from "fs";
 import path from "path";
 import { getActiveEventId, getEventConfig, eventStateFileName } from "./eventConfig";
 import { generateRoomCode, normalizeRoomCode } from "./rooms";
+import { normalizeEurovisionPoints } from "./eurovisionPoints";
 
 type Artist = { id: string; name: string; song?: string; country?: string; flag?: string; imageUrl?: string };
 type Vote = {
@@ -129,8 +130,8 @@ export async function writeState(nextState: State, eventId?: string, subEvent?: 
 }
 
 export async function upsertVote(input: { voter: string; artistId: string; song: number; show: number }, eventId?: string, roomCode?: string) {
-  const safeSong = Math.max(1, Math.min(10, Number(input.song)));
-  const safeShow = Math.max(1, Math.min(10, Number(input.show)));
+  const safeSong = normalizeEurovisionPoints(input.song);
+  const safeShow = normalizeEurovisionPoints(input.show);
   const total = safeSong + safeShow;
 
   const eid = eventId ?? (await getActiveEventId());

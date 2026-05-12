@@ -306,7 +306,7 @@ export default function LiveResultsPage() {
                   <div className={`text-center text-sm font-black ${rankChangedRecently ? (rankChange?.direction === "up" ? "rank-pop-up" : "rank-pop-down") : ""}`}>
                     #{index + 1}
                     {rankChangedRecently ? (
-                      <span className={`ml-1 text-[10px] ${rankChange?.direction === "up" ? "text-emerald-300" : "text-rose-300"}`}>
+                      <span className={`ml-1 text-xs ${rankChange?.direction === "up" ? "text-emerald-300" : "text-rose-300"}`}>
                         {rankChange?.direction === "up" ? "▲" : "▼"}
                       </span>
                     ) : null}
@@ -315,7 +315,7 @@ export default function LiveResultsPage() {
                     <p className="truncate text-base font-bold">{row.artist}</p>
                     <p className="truncate text-xs text-white/70">{row.song}</p>
                     {changedAt ? (
-                      <p className={`text-[11px] ${justChanged ? "pulse-dot text-red-200" : "text-white/50"}`}>
+                      <p className={`text-xs ${justChanged ? "pulse-dot text-red-200" : "text-white/50"}`}>
                         Last changed {new Date(changedAt).toLocaleTimeString()}
                       </p>
                     ) : null}
@@ -326,7 +326,7 @@ export default function LiveResultsPage() {
               );
             })}
           </div>
-          <a href={displayedData?.source ?? "https://eurovisionworld.com"} target="_blank" rel="noreferrer" className="mt-3 inline-block text-xs text-cyan-200 underline">
+          <a href={displayedData?.source ?? "https://eurovisionworld.com"} target="_blank" rel="noreferrer" className="mt-3 inline-block text-xs from-fuchsia-300 underline">
             Source feed
           </a>
         </section>

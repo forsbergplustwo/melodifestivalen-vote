@@ -9,7 +9,7 @@ type Props = {
   artists: DeckArtist[];
   getDraftScore: (artistId: string) => { song: number; show: number };
   updateDraftScore: (artistId: string, field: "song" | "show", value: number) => void;
-  hasVotedFor: (artistId: string) => boolean;
+  getSortedVotesForArtist: (artistId: string) => { voter: string; song: number; show: number; total: number }[];
   savingVoteForArtistId: string | null;
   submitVote: (artistId: string, event?: MouseEvent<HTMLButtonElement>) => void | Promise<void>;
 };
@@ -18,7 +18,7 @@ export function MobileVoteDeck({
   artists,
   getDraftScore,
   updateDraftScore,
-  hasVotedFor,
+  getSortedVotesForArtist,
   savingVoteForArtistId,
   submitVote,
 }: Props) {
@@ -77,18 +77,18 @@ export function MobileVoteDeck({
   const showIndex = Math.min(activeIndex + 1, total);
   const progressPct = Math.max(0, Math.min(100, (showIndex / total) * 100));
   const swipeNavHeightPx = 60;
-  const footerNavHeightPx = 72;
-  const fixedCardHeightPx = Math.max(300, initialViewportHeight - swipeNavHeightPx - footerNavHeightPx);
+  const footerNavHeightPx = 62;
+  const fixedCardHeightPx = Math.max(300, initialViewportHeight - swipeNavHeightPx - footerNavHeightPx + 18);
   const cardHeight = `${fixedCardHeightPx}px`;
 
   return (
     <div className="md:hidden">
-      <div className="vote-deck-anchor sticky top-[calc(env(safe-area-inset-top)+2px)] z-30 mb-2 flex shrink-0 snap-start flex-col gap-1.5 rounded-xl border border-white/15 bg-black/65 px-3 py-1.5 pt-1 backdrop-blur">
+      <div className="vote-deck-anchor sticky top-[calc(env(safe-area-inset-top)+4px)] z-30 mb-2 flex shrink-0 snap-start flex-col gap-1.5 rounded-xl border border-white/15 bg-black/65 px-3 py-1.5 pt-1 backdrop-blur">
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/20">
           <div className="h-full rounded-full bg-gradient-to-r from-fuchsia-400 via-violet-400 to-blue-400 transition-all duration-300" style={{ width: `${progressPct}%` }} />
         </div>
         <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2">
-          <p className="text-xs font-black tracking-wide text-fuchsia-100">
+          <p className="text-sm font-black tracking-wide text-fuchsia-100">
             {showIndex} / {total}
           </p>
           <div className="flex justify-center overflow-x-auto py-0.5" role="tablist" aria-label="Jump to act">
@@ -108,15 +108,15 @@ export function MobileVoteDeck({
               ))}
             </div>
           </div>
-          <p className="text-right text-[10px] font-semibold uppercase tracking-wider text-fuchsia-100">Semi 1</p>
+          <p className="text-right text-xs font-semibold uppercase tracking-wider text-fuchsia-100">Semi 1</p>
         </div>
       </div>
 
-      <div className="space-y-8 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+      <div className="space-y-12 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
         {artists.map((artist, index) => {
           const score = getDraftScore(artist.id);
           const sum = score.song + score.show;
-          const hasVoted = hasVotedFor(artist.id);
+          const rankedVotes = getSortedVotesForArtist(artist.id);
           const songPulse = sliderPulse?.artistId === artist.id && sliderPulse.field === "song";
           const showPulse = sliderPulse?.artistId === artist.id && sliderPulse.field === "show";
 
@@ -126,6 +126,7 @@ export function MobileVoteDeck({
               ref={(element) => {
                 cardRefs.current[index] = element;
               }}
+              data-artist-card-id={artist.id}
               className="vote-deck-card relative flex-none snap-start snap-always overflow-hidden rounded-2xl border border-white/20 shadow-2xl"
               style={{ minHeight: cardHeight, height: cardHeight, maxHeight: cardHeight }}
             >
@@ -143,50 +144,65 @@ export function MobileVoteDeck({
                 aria-hidden
               />
 
-              <div className="absolute left-3 top-3">
-                <span className="rounded-full bg-black/65 px-3 py-1.5 text-sm font-black text-white backdrop-blur-sm">#{index + 1}</span>
-              </div>
-              <div className="absolute right-3 top-3">
-                {hasVoted ? (
-                  <span className="rounded-full bg-emerald-400/90 px-3 py-1.5 text-sm font-black text-black">Voted</span>
-                ) : (
-                  <span className="rounded-full bg-black/55 px-3 py-1.5 text-sm font-semibold text-white/85 backdrop-blur-sm">Not voted</span>
-                )}
+              <div className="absolute left-2.5 right-2.5 top-2.5 flex items-start justify-between">
+                <span className="rounded-full bg-black/65 px-3 py-1.5 text-base font-black text-white backdrop-blur-sm">
+                  #{index + 1}{artist.country ? ` · ${artist.country}` : ""}
+                </span>
+                {rankedVotes.length ? (
+                  <div className="w-auto max-w-[min(72vw,260px)] overflow-hidden rounded-lg border border-white/20 bg-black/65 backdrop-blur-sm">
+                    <div className="grid grid-cols-[minmax(0,1fr)_2.35rem_2.35rem_2.35rem] gap-1 border-b border-white/15 bg-black/35 px-2 py-1 text-xs font-bold uppercase tracking-wider text-white/70">
+                      <span>Voter</span>
+                      <span className="text-right">Song</span>
+                      <span className="text-right">Show</span>
+                      <span className="text-right">Pts</span>
+                    </div>
+                    <div className="divide-y divide-white/10">
+                      {rankedVotes.slice(0, 5).map((vote) => (
+                        <div key={`${artist.id}-${vote.voter}`} className="grid grid-cols-[minmax(0,1fr)_2.35rem_2.35rem_2.35rem] items-center gap-1 px-2 py-1 text-sm">
+                          <span className="font-semibold text-white/90">{vote.voter.length > 10 ? `${vote.voter.slice(0, 10)}…` : vote.voter}</span>
+                          <span className="text-right font-semibold tabular-nums text-white/80">{vote.song}</span>
+                          <span className="text-right font-semibold tabular-nums text-white/80">{vote.show}</span>
+                          <span className="text-right font-black tabular-nums text-white">{vote.total}</span>
+                        </div>
+                      ))}
+                    </div>
+                    {rankedVotes.length > 5 ? (
+                      <div className="border-t border-white/10 px-2 py-1 text-right text-xs font-semibold text-white/70">
+                        +{rankedVotes.length - 5} more
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
               </div>
 
-              <div className="relative flex min-h-[inherit] flex-col justify-end p-4 pt-[42%]">
+              <div className="relative flex min-h-[inherit] flex-col justify-end p-3 pt-[42%]">
                 <div className="pointer-events-auto">
                   <h2 className="flex items-center gap-2 text-2xl font-black leading-tight drop-shadow-md">
                     <span>{artist.name}</span>
-                    {artist.country ? (
-                      <span className="rounded-full bg-black/65 px-2.5 py-1 text-xs font-black uppercase tracking-wide text-fuchsia-100 backdrop-blur-sm">
-                        {artist.country}
-                      </span>
-                    ) : null}
                   </h2>
-                  {artist.song ? <p className="mt-1 text-sm font-semibold text-cyan-200 drop-shadow">♪ {artist.song}</p> : null}
+                  {artist.song ? <p className="mt-1 text-sm font-semibold from-fuchsia-300 drop-shadow">♪ {artist.song}</p> : null}
 
-                  <div className={`mt-4 grid grid-cols-[58px_30px_1fr] items-center gap-2 transition-transform duration-200 ease-out ${songPulse ? "vote-slider-nudge" : ""}`}>
-                    <p className="text-base font-semibold text-white/90">Song</p>
-                    <p className="text-base font-black text-fuchsia-200">{score.song}</p>
+                  <div className={`mt-4 grid grid-cols-[58px_30px_1fr] items-center gap-x-2 gap-y-0 transition-transform duration-200 ease-out ${songPulse ? "vote-slider-nudge" : ""}`}>
+                    <p className="self-center text-xl leading-none font-semibold text-white/90">Song</p>
+                    <p className="self-center text-xl leading-none font-black text-fuchsia-200">{score.song}</p>
                     <Slider
                       size="large"
                       value={score.song}
-                      min={1}
-                      max={10}
+                      min={0}
+                      max={12}
                       onChange={(value) => updateDraftScore(artist.id, "song", value)}
                       onValueCommit={() => setSliderPulse({ artistId: artist.id, field: "song" })}
                       className="mb-0"
                     />
                   </div>
-                  <div className={`mt-2.5 grid grid-cols-[58px_30px_1fr] items-center gap-2 transition-transform duration-200 ease-out ${showPulse ? "vote-slider-nudge" : ""}`}>
-                    <p className="text-base font-semibold text-white/90">Show</p>
-                    <p className="text-base font-black text-amber-300">{score.show}</p>
+                  <div className={`mt-6 grid grid-cols-[58px_30px_1fr] items-center gap-x-2 gap-y-0 transition-transform duration-200 ease-out ${showPulse ? "vote-slider-nudge" : ""}`}>
+                    <p className="self-center text-xl leading-none font-semibold text-white/90">Show</p>
+                    <p className="self-center text-xl leading-none font-black text-amber-300">{score.show}</p>
                     <Slider
                       size="large"
                       value={score.show}
-                      min={1}
-                      max={10}
+                      min={0}
+                      max={12}
                       onChange={(value) => updateDraftScore(artist.id, "show", value)}
                       onValueCommit={() => setSliderPulse({ artistId: artist.id, field: "show" })}
                       className="mb-0"
@@ -197,7 +213,7 @@ export function MobileVoteDeck({
                     type="button"
                     onClick={(event) => void submitVote(artist.id, event)}
                     disabled={savingVoteForArtistId === artist.id}
-                    className="vote-deck-cta mt-2.5 mb-1 min-h-[52px] w-full rounded-2xl bg-gradient-to-r from-fuchsia-500 via-violet-500 to-blue-500 px-4 py-3.5 text-base font-black text-white shadow-lg shadow-fuchsia-900/35 active:scale-[0.98] disabled:opacity-50"
+                    className="vote-deck-cta mt-6 mb-1 min-h-[44px] w-full rounded-2xl bg-gradient-to-r from-fuchsia-500 via-violet-500 to-blue-500 px-4 py-2.5 text-xl font-black text-white shadow-lg shadow-fuchsia-900/35 active:scale-[0.98] disabled:opacity-50"
                   >
                     {savingVoteForArtistId === artist.id ? "Saving…" : `Submit ${sum} points to ${artist.country ?? artist.name}`}
                   </button>

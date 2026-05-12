@@ -1,10 +1,12 @@
 "use client";
 
+import confetti from "canvas-confetti";
 import Link from "next/link";
 import { MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MobileVoteDeck } from "@/components/MobileVoteDeck";
 import { Slider } from "@/components/slider";
 import { VotePulseDock, type VotePulseItem } from "@/components/VotePulseDock";
+import { normalizeEurovisionPoints } from "@/lib/eurovisionPoints";
 
 type Artist = { id: string; name: string; song?: string; imageUrl?: string; country?: string };
 type Vote = {
@@ -45,28 +47,7 @@ type EventResponse = {
   active?: EventInfo | null;
 };
 
-type VoteParticle = {
-  id: string;
-  dx: string;
-  dy: string;
-  rot: string;
-  delay: string;
-};
-
-type VoteEffect = {
-  id: string;
-  artistId: string;
-  artistName: string;
-  total: number;
-  mood: "good" | "ok" | "bad";
-  emoji: string;
-  x: number;
-  y: number;
-  particles: VoteParticle[];
-};
-
-const defaultScores = { song: 7, show: 7 };
-const artistEmojiBySlot = ["💫", "🔥", "🦄", "🎸", "🕺", "👑", "🚀", "🌟", "💥", "🎤", "⚡", "🌈"];
+const defaultScores = { song: 6, show: 6 };
 const refreshToastVersion = "mello-refresh-toast-v1";
 const scrollPositionKey = "mello-scroll-y";
 const voteScrollPositionKey = "mello-vote-scroll-y";
@@ -80,6 +61,12 @@ type RoomApiResponse = {
 };
 
 const roomCodePattern = /^[A-Z2-9]{6}$/;
+
+function createClientId() {
+  const generated = globalThis.crypto?.randomUUID?.();
+  if (generated) return generated;
+  return `id-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+}
 
 function getRoomCodeFromUrl(): string {
   if (typeof window === "undefined") return "";
@@ -137,9 +124,6 @@ export default function Home() {
   const [loading, setLoading] = useState(() => (typeof window !== "undefined" ? Boolean(localStorage.getItem(roomCodeStorageKey)) : false));
   const [savingVoteForArtistId, setSavingVoteForArtistId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
-  const [showReveal, setShowReveal] = useState(false);
-  const [revealStep, setRevealStep] = useState(0);
-  const [revealCountdown, setRevealCountdown] = useState<number | null>(null);
   const [joinedName, setJoinedName] = useState(() => {
     if (typeof window === "undefined") return "";
     const savedName = localStorage.getItem("mello-voter-name") ?? "";
@@ -147,7 +131,6 @@ export default function Home() {
     return savedName && savedParty ? savedName : "";
   });
   const [eventInfo, setEventInfo] = useState<EventInfo | null>(null);
-  const [voteEffect, setVoteEffect] = useState<VoteEffect | null>(null);
   const [showRefreshToast, setShowRefreshToast] = useState(
     () => !(typeof window !== "undefined" && localStorage.getItem(refreshToastVersion) === "done")
   );
@@ -162,6 +145,7 @@ export default function Home() {
 
   const [draftScoresByArtist, setDraftScoresByArtist] = useState<Record<string, { song: number; show: number }>>({});
   const voteSnapshotRef = useRef<Map<string, string>>(new Map());
+  const voteSnapshotInitializedRef = useRef(false);
   const pulseTimersRef = useRef<number[]>([]);
   const appVersionRef = useRef<string | null>(null);
   const currentVoterNameRef = useRef("");
@@ -181,16 +165,14 @@ export default function Home() {
   }
 
   const queueVotePulses = useCallback((changedVotes: Vote[], nextArtists: Artist[]) => {
-    const currentVoter = currentVoterNameRef.current;
     const artistNameById = new Map(nextArtists.map((artist) => [artist.id, artist.name]));
-    const visibleVotes = changedVotes.filter((vote) => vote.voter.toLowerCase() !== currentVoter);
-
-    if (!visibleVotes.length) return;
+    if (!changedVotes.length) return;
 
     const singlePulseFromVote = (vote: Vote): VotePulseItem => ({
-      id: crypto.randomUUID(),
+      id: createClientId(),
       kind: "single",
       voter: vote.voter,
+      artistId: vote.artistId,
       artistName: artistNameById.get(vote.artistId) ?? "Artist",
       total: vote.total,
       reaction: reactionFromTotal(vote.total),
@@ -198,24 +180,24 @@ export default function Home() {
     });
 
     const batch =
-      visibleVotes.length > 3
+      changedVotes.length > 3
         ? [
             {
-              id: crypto.randomUUID(),
+              id: createClientId(),
               kind: "burst" as const,
-              count: visibleVotes.length - 1,
-              hint: `${visibleVotes[0].voter} · ${(artistNameById.get(visibleVotes[0].artistId) ?? "Artist")} ${visibleVotes[0].total}/20`,
+              count: changedVotes.length - 1,
+              hint: `${changedVotes[0].voter} · ${(artistNameById.get(changedVotes[0].artistId) ?? "Artist")} ${changedVotes[0].total}/24`,
             },
-            singlePulseFromVote(visibleVotes[0]),
+            singlePulseFromVote(changedVotes[0]),
           ]
-        : visibleVotes.map(singlePulseFromVote);
+        : changedVotes.map(singlePulseFromVote);
 
-    setVotePulseItems((current) => [...batch, ...current].slice(0, 3));
+    setVotePulseItems((current) => [...batch, ...current]);
 
     batch.forEach((item) => {
       const timer = window.setTimeout(() => {
         setVotePulseItems((current) => current.filter((pulse) => pulse.id !== item.id));
-      }, 4000);
+      }, 10000);
       pulseTimersRef.current.push(timer);
     });
   }, []);
@@ -233,9 +215,15 @@ export default function Home() {
       }
     }
 
+    if (!voteSnapshotInitializedRef.current) {
+      voteSnapshotRef.current = nextSnapshot;
+      voteSnapshotInitializedRef.current = true;
+      return;
+    }
+
     voteSnapshotRef.current = nextSnapshot;
 
-    if (!previousSnapshot.size || !changedVotes.length) return;
+    if (!changedVotes.length) return;
 
     changedVotes.sort((left, right) => {
       const leftTime = Date.parse(left.updatedAt ?? left.createdAt ?? "0");
@@ -379,12 +367,6 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (!voteEffect) return;
-    const effectTimer = setTimeout(() => setVoteEffect(null), 3000);
-    return () => clearTimeout(effectTimer);
-  }, [voteEffect]);
-
-  useEffect(() => {
     if (!showJoinedNotice) return;
     const timer = window.setTimeout(() => setShowJoinedNotice(false), 3200);
     return () => window.clearTimeout(timer);
@@ -415,6 +397,22 @@ export default function Home() {
     return map;
   }, [votes, voterName]);
 
+  const rankedVotesByArtist = useMemo(() => {
+    const byArtist = new Map<string, { voter: string; song: number; show: number; total: number; updatedAt?: string }[]>();
+    for (const vote of votes) {
+      const list = byArtist.get(vote.artistId) ?? [];
+      list.push({ voter: vote.voter, song: vote.song, show: vote.show, total: vote.total, updatedAt: vote.updatedAt });
+      byArtist.set(vote.artistId, list);
+    }
+    for (const [artistId, list] of byArtist) {
+      byArtist.set(
+        artistId,
+        list.sort((left, right) => right.total - left.total || Date.parse(right.updatedAt ?? "0") - Date.parse(left.updatedAt ?? "0"))
+      );
+    }
+    return byArtist;
+  }, [votes]);
+
   const voteStatsByArtist = useMemo(() => {
     const stats = new Map<string, { lowest?: Vote; highest?: Vote }>();
 
@@ -437,41 +435,44 @@ export default function Home() {
 
   function getDraftScore(artistId: string) {
     const existingDraftScore = draftScoresByArtist[artistId];
-    if (existingDraftScore) return existingDraftScore;
+    if (existingDraftScore) {
+      return {
+        song: normalizeEurovisionPoints(existingDraftScore.song),
+        show: normalizeEurovisionPoints(existingDraftScore.show),
+      };
+    }
     const previousVote = votesByCurrentUserAndArtist.get(artistId);
-    if (previousVote) return { song: previousVote.song, show: previousVote.show };
+    if (previousVote) {
+      return {
+        song: normalizeEurovisionPoints(previousVote.song),
+        show: normalizeEurovisionPoints(previousVote.show),
+      };
+    }
     return defaultScores;
   }
 
   function updateDraftScore(artistId: string, field: "song" | "show", value: number) {
     const currentScore = getDraftScore(artistId);
-    setDraftScoresByArtist((previous) => ({ ...previous, [artistId]: { ...currentScore, [field]: value } }));
+    setDraftScoresByArtist((previous) => ({
+      ...previous,
+      [artistId]: { ...currentScore, [field]: normalizeEurovisionPoints(value) },
+    }));
   }
 
-  function buildVoteEffect(artistId: string, total: number, x: number, y: number): VoteEffect {
-    const artistIndex = artists.findIndex((artist) => artist.id === artistId);
-    const emoji = artistEmojiBySlot[(artistIndex >= 0 ? artistIndex : 0) % artistEmojiBySlot.length];
-    const artistName = artists.find((artist) => artist.id === artistId)?.name ?? "Artist";
-    const mood = total >= 18 ? "good" : total < 14 ? "bad" : "ok";
-    const particles = Array.from({ length: 26 }).map((_, index) => ({
-      id: `${index}-${crypto.randomUUID()}`,
-      dx: `${(Math.random() - 0.5) * 420}px`,
-      dy: `${-140 - Math.random() * 300}px`,
-      rot: `${Math.random() * 700 - 350}deg`,
-      delay: `${Math.random() * 260}ms`,
-    }));
-
-    return {
-      id: crypto.randomUUID(),
-      artistId,
-      artistName,
-      total,
-      mood,
-      emoji,
-      x,
-      y,
-      particles,
-    };
+  function launchConfettiCannon(x: number, y: number, totalScore: number) {
+    const originX = Math.max(0, Math.min(1, x / window.innerWidth));
+    const originY = Math.max(0, Math.min(1, y / window.innerHeight));
+    const normalized = Math.max(0, Math.min(1, totalScore / 24));
+    confetti({
+      particleCount: Math.round(30 + normalized * 120),
+      spread: Math.round(40 + normalized * 38),
+      startVelocity: Math.round(30 + normalized * 34),
+      gravity: 1.1,
+      ticks: 180,
+      scalar: 0.62 + normalized * 0.42,
+      colors: ["#ff0178", "#8b3dff", "#2200ff", "#f5d547", "#ffffff"],
+      origin: { x: originX, y: originY },
+    });
   }
 
   async function submitVote(artistId: string, clickEvent?: MouseEvent<HTMLButtonElement>) {
@@ -505,36 +506,10 @@ export default function Home() {
 
     const nextState = (await response.json()) as StateResponse;
     applyState(nextState);
-    setVoteEffect(buildVoteEffect(artistId, total, effectX, effectY));
+    launchConfettiCannon(effectX, effectY, total);
   }
 
-  const topThree = leaderboard.slice(0, 3);
   const everyoneHasVoted = artists.length > 0 && artists.every((artist) => votesByCurrentUserAndArtist.has(artist.id));
-
-  function startRevealMode() {
-    setShowReveal(true);
-    setRevealStep(0);
-    setRevealCountdown(3);
-
-    setTimeout(() => setRevealCountdown(2), 350);
-    setTimeout(() => setRevealCountdown(1), 700);
-    setTimeout(() => {
-      setRevealCountdown(null);
-      setRevealStep(1);
-    }, 1050);
-    setTimeout(() => setRevealStep(2), 1450);
-    setTimeout(() => setRevealStep(3), 1850);
-  }
-
-  function revealNext() {
-    setRevealStep((current) => Math.min(3, current + 1));
-  }
-
-  function resetReveal() {
-    setShowReveal(false);
-    setRevealStep(0);
-    setRevealCountdown(null);
-  }
 
   function joinParty() {
     const name = voterName.trim();
@@ -573,6 +548,8 @@ export default function Home() {
     setActiveRoomCode(payload.roomCode);
     setRoomCodeInput(payload.roomCode);
     setJoinedName("");
+    voteSnapshotRef.current = new Map();
+    voteSnapshotInitializedRef.current = false;
     setShowCreateRoom(false);
     setRoomCodeInUrl(payload.roomCode);
     localStorage.setItem(roomCodeStorageKey, payload.roomCode);
@@ -612,6 +589,8 @@ export default function Home() {
     setActiveRoomCode(payload.roomCode);
     setRoomCodeInput(payload.roomCode);
     setJoinedName("");
+    voteSnapshotRef.current = new Map();
+    voteSnapshotInitializedRef.current = false;
     setRoomCodeInUrl(payload.roomCode);
     localStorage.setItem(roomCodeStorageKey, payload.roomCode);
     setLoading(true);
@@ -632,6 +611,8 @@ export default function Home() {
     setVotes([]);
     setLeaderboard([]);
     setVotePulseItems([]);
+    voteSnapshotRef.current = new Map();
+    voteSnapshotInitializedRef.current = false;
     localStorage.removeItem(roomCodeStorageKey);
     localStorage.removeItem("mello-voter-name");
     if (typeof window !== "undefined") {
@@ -660,6 +641,32 @@ export default function Home() {
       localStorage.setItem(voteScrollPositionKey, String(window.scrollY));
     }
     setActiveTab(nextTab);
+  }
+
+  function scrollToArtistCard(artistId: string) {
+    switchTab("vote");
+
+    let attempts = 0;
+    const maxAttempts = 18;
+
+    const jumpToArtist = () => {
+      const cards = Array.from(document.querySelectorAll<HTMLElement>("[data-artist-card-id]"));
+      const matchingCards = cards.filter((card) => card.dataset.artistCardId === artistId);
+      const visibleCard = matchingCards.find((card) => card.offsetParent !== null);
+      const card = visibleCard ?? matchingCards[0];
+
+      if (card) {
+        card.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
+
+      attempts += 1;
+      if (attempts < maxAttempts) {
+        window.requestAnimationFrame(jumpToArtist);
+      }
+    };
+
+    window.requestAnimationFrame(jumpToArtist);
   }
 
   return (
@@ -695,7 +702,7 @@ export default function Home() {
         </div>
 
         <header className="mb-2 rounded-xl border border-white/15 bg-black/35 p-3 shadow-xl backdrop-blur">
-          <p className="mb-1 hidden rounded-full bg-yellow-300 px-2 py-0.5 text-[10px] font-bold tracking-wider text-black sm:inline-block">
+          <p className="mb-1 hidden rounded-full bg-yellow-300 px-2 py-0.5 text-xs font-bold tracking-wider text-black sm:inline-block">
             {eventInfo ? `${eventInfo.country} ${eventInfo.name.toUpperCase()}` : "LOADING EVENT..."}
           </p>
           <h1 className="text-lg font-black uppercase tracking-wide sm:text-xl md:text-3xl">Semifinal 1 · Vienna 2026</h1>
@@ -793,7 +800,7 @@ export default function Home() {
           <div className="fixed bottom-3 left-1/2 z-[60] w-[min(92vw,560px)] -translate-x-1/2 rounded-xl border border-cyan-200/40 bg-slate-950/95 p-3 shadow-2xl backdrop-blur">
             <div className="flex items-center gap-2">
               <p className="text-sm text-white">
-                New version available. <span className="font-bold text-cyan-200">Refresh to get latest version.</span>
+                New version available. <span className="font-bold from-fuchsia-300">Refresh to get latest version.</span>
               </p>
               <button onClick={refreshToLatestVersion} className="ml-auto rounded-lg bg-cyan-300 px-3 py-1.5 text-xs font-black text-black">
                 Refresh now
@@ -802,39 +809,7 @@ export default function Home() {
           </div>
         ) : null}
 
-        {voteEffect ? (
-          <div className="pointer-events-none fixed inset-0 z-50 overflow-hidden">
-            <div
-              className={`confetti-origin ${voteEffect.mood === "good" ? "confetti-origin--good" : voteEffect.mood === "bad" ? "confetti-origin--bad" : "confetti-origin--ok"}`}
-              style={{ left: voteEffect.x, top: voteEffect.y }}
-            >
-              {voteEffect.particles.map((particle) => (
-                <span
-                  key={`${voteEffect.id}-${particle.id}`}
-                  className="confetti-particle"
-                  style={{
-                    ["--dx" as string]: particle.dx,
-                    ["--dy" as string]: particle.dy,
-                    ["--rot" as string]: particle.rot,
-                    ["--delay" as string]: particle.delay,
-                  }}
-                >
-                  {voteEffect.mood === "good"
-                    ? `${voteEffect.emoji}🪩🔥👑`
-                    : voteEffect.mood === "bad"
-                      ? `${voteEffect.emoji}🗑️💀🤡`
-                      : `${voteEffect.emoji}😏🍿🫖`}
-                </span>
-              ))}
-            </div>
-
-            <div className="mx-auto mt-6 w-fit rounded-2xl border border-white/30 bg-black/70 px-4 py-3 text-center text-sm font-bold text-white shadow-2xl">
-              {voteEffect.artistName}: <span className="text-cyan-300">{voteEffect.total}/20</span>
-            </div>
-          </div>
-        ) : null}
-
-        <VotePulseDock items={votePulseItems} active={activeTab === "vote"} />
+        <VotePulseDock items={votePulseItems} active={activeTab === "vote"} onSelectArtist={scrollToArtistCard} />
 
         {!activeRoomCode ? (
           <div className="rounded-2xl border border-cyan-300/25 bg-black/35 p-8 text-center text-white/85">
@@ -852,7 +827,7 @@ export default function Home() {
               artists={artists}
               getDraftScore={getDraftScore}
               updateDraftScore={updateDraftScore}
-              hasVotedFor={(artistId) => votesByCurrentUserAndArtist.has(artistId)}
+              getSortedVotesForArtist={(artistId) => rankedVotesByArtist.get(artistId) ?? []}
               savingVoteForArtistId={savingVoteForArtistId}
               submitVote={submitVote}
             />
@@ -864,7 +839,7 @@ export default function Home() {
                 const hasVoted = votesByCurrentUserAndArtist.has(artist.id);
 
                 return (
-                  <article key={artist.id} className="overflow-hidden rounded-2xl border border-white/25 bg-white/10 shadow-xl backdrop-blur">
+                  <article key={artist.id} data-artist-card-id={artist.id} className="overflow-hidden rounded-2xl border border-white/25 bg-white/10 shadow-xl backdrop-blur">
                     <div className="relative h-44 w-full bg-black/30">
                       {artist.imageUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
@@ -872,26 +847,26 @@ export default function Home() {
                       ) : (
                         <div className="flex h-full items-center justify-center text-5xl">🎤</div>
                       )}
-                      <div className="absolute left-2 top-2 rounded-full bg-black/70 px-2 py-1 text-xs font-bold">#{index + 1}</div>
+                      <div className="absolute left-2 top-2 rounded-full bg-black/70 px-2 py-1 text-sm font-bold">#{index + 1}</div>
                     </div>
 
                     <div className="p-4">
                       <div className="mb-2 flex items-center justify-between gap-3">
-                        <h2 className="text-lg font-extrabold">{artist.name}</h2>
+                        <h2 className="text-xl font-extrabold">{artist.name}</h2>
                         {hasVoted ? (
-                          <span className="rounded-full bg-emerald-300 px-2 py-1 text-xs font-bold text-black">Voted</span>
+                          <span className="rounded-full bg-emerald-300 px-2 py-1 text-sm font-bold text-black">Voted</span>
                         ) : (
-                          <span className="rounded-full bg-white/20 px-2 py-1 text-xs font-semibold text-white/80">Not voted</span>
+                          <span className="rounded-full bg-white/20 px-2 py-1 text-sm font-semibold text-white/80">Not voted</span>
                         )}
                       </div>
 
-                      {artist.song ? <p className="mb-3 text-sm text-cyan-200">♪ {artist.song}</p> : null}
+                      {artist.song ? <p className="mb-3 text-base from-fuchsia-300">♪ {artist.song}</p> : null}
 
                       <Slider
                         label="Song"
                         value={score.song}
-                        min={1}
-                        max={10}
+                        min={0}
+                        max={12}
                         onChange={(value) => updateDraftScore(artist.id, "song", value)}
                         valueDisplay={<span className="text-cyan-300">{score.song}</span>}
                       />
@@ -899,18 +874,18 @@ export default function Home() {
                       <Slider
                         label="Show"
                         value={score.show}
-                        min={1}
-                        max={10}
+                        min={0}
+                        max={12}
                         onChange={(value) => updateDraftScore(artist.id, "show", value)}
                         valueDisplay={<span className="text-amber-300">{score.show}</span>}
                       />
 
-                      <div className="mb-4 text-sm text-white/85">Total: <span className="text-xl font-black text-cyan-300">{total}</span></div>
+                      <div className="mb-4 text-base text-white/85">Total: <span className="text-2xl font-black text-cyan-300">{total}</span></div>
 
                       <button
                         onClick={(event) => submitVote(artist.id, event)}
                         disabled={savingVoteForArtistId === artist.id}
-                        className="w-full rounded-xl bg-gradient-to-r from-fuchsia-500 via-violet-500 to-blue-500 px-4 py-2 text-sm font-black text-white shadow-lg shadow-fuchsia-900/25 disabled:opacity-50"
+                        className="w-full rounded-xl bg-gradient-to-r from-fuchsia-500 via-violet-500 to-blue-500 px-4 py-2 text-base font-black text-white shadow-lg shadow-fuchsia-900/25 disabled:opacity-50"
                       >
                         {savingVoteForArtistId === artist.id ? "Saving…" : hasVoted ? "Update vote" : "Submit vote"}
                       </button>
@@ -923,7 +898,7 @@ export default function Home() {
             <div className="mt-6 hidden justify-center md:flex">
               <button
                 onClick={() => switchTab("board")}
-                className={`rounded-2xl px-6 py-3 text-sm font-black transition ${
+                className={`rounded-2xl px-6 py-3 text-base font-black transition ${
                   everyoneHasVoted
                     ? "bg-emerald-300 text-black hover:scale-[1.02]"
                     : "bg-white/15 text-white"
@@ -934,121 +909,101 @@ export default function Home() {
             </div>
           </section>
         ) : (
-          <section className="rounded-2xl border border-white/25 bg-white/10 p-4 backdrop-blur md:p-6">
-            <div className="mb-3 flex flex-wrap items-center gap-2 md:sticky md:top-14 md:z-30 md:rounded-lg md:bg-slate-950/80 md:px-2 md:py-1.5 md:backdrop-blur">
-              <h2 className="mr-auto text-2xl font-black">Leaderboard 🏆</h2>
-              {!showReveal ? (
-                <button onClick={startRevealMode} className="rounded-xl bg-gradient-to-r from-amber-400 to-yellow-300 px-3 py-2 text-sm font-black text-black">
-                  Reveal our winners 🎉
-                </button>
-              ) : (
-                <>
-                  {revealStep < 3 ? (
-                    <button onClick={revealNext} className="rounded-xl bg-gradient-to-r from-fuchsia-500 via-violet-500 to-blue-500 px-3 py-2 text-sm font-black text-white">
-                      Reveal next
-                    </button>
-                  ) : null}
-                  <button onClick={resetReveal} className="rounded-xl bg-white/15 px-3 py-2 text-sm font-semibold text-white">
-                    Exit reveal
-                  </button>
-                </>
-              )}
+          <section className="rounded-2xl border border-white/20 bg-black/40 p-3 shadow-xl backdrop-blur md:p-4">
+            <div className="mb-3 flex items-end justify-between gap-2">
+              <h2 className="text-2xl font-black uppercase tracking-wide md:text-3xl">Leaderboard</h2>
+              <p className="text-sm font-semibold uppercase tracking-wider text-white/65">{leaderboard.length} artists</p>
             </div>
 
-            {showReveal ? (
-              <div className="mb-4 rounded-xl border border-amber-400/40 bg-black/30 p-4">
-                <p className="mb-2 text-xs uppercase tracking-widest text-amber-300">Our Winners Reveal</p>
-
-                {revealCountdown !== null ? (
-                  <div className="mb-3 rounded-lg border border-cyan-400/40 bg-gradient-to-r from-cyan-500/35 via-blue-500/30 to-amber-500/35 p-5 text-center shadow-[0_0_30px_rgba(0,212,255,0.35)]">
-                    <p className="text-xs uppercase tracking-[0.35em] text-white/80">Get ready</p>
-                    <p className="text-7xl font-black text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.7)]">{revealCountdown}</p>
-                  </div>
-                ) : null}
-
-                {topThree.slice(0, revealStep).map((row, index) => {
-                  const medal = index === 0 ? "🥇" : index === 1 ? "🥈" : "🥉";
-                  const artist = artists.find((item) => item.id === row.artistId);
-
-                  return (
-                    <div
-                      key={row.artistId}
-                      className={`mb-3 overflow-hidden rounded-xl border p-0 last:mb-0 ${
-                        index === 0
-                          ? "border-amber-400/60 bg-gradient-to-r from-amber-500/20 to-cyan-500/20"
-                          : index === 1
-                            ? "border-slate-300/50 bg-gradient-to-r from-slate-300/15 to-cyan-500/15"
-                            : "border-blue-400/60 bg-gradient-to-r from-blue-500/20 to-amber-500/15"
-                      }`}
-                    >
-                      <div className="grid grid-cols-[88px_1fr_auto] items-center gap-3 p-3">
-                        <div className="h-20 w-20 overflow-hidden rounded-lg bg-black/30">
-                          {artist?.imageUrl ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={artist.imageUrl} alt={row.artistName} className="h-full w-full object-cover" referrerPolicy="no-referrer" />
-                          ) : (
-                            <div className="flex h-full items-center justify-center text-3xl">🎤</div>
-                          )}
-                        </div>
-
-                        <div>
-                          <p className="text-xs uppercase tracking-widest text-white/70">#{index + 1} place</p>
-                          <p className="text-xl font-black">{medal} {row.artistName}</p>
-                          {row.songTitle ? <p className="text-sm text-cyan-200">♪ {row.songTitle}</p> : null}
-                        </div>
-
-                        <div className="text-right">
-                          <p className="text-xs text-white/70">Total</p>
-                          <p className="text-2xl font-black text-cyan-300">{row.totalAverage.toFixed(1)}</p>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : null}
-
-            <div className="max-h-[58vh] space-y-3 overflow-y-auto pr-1">
+            <div className="space-y-2 md:hidden">
               {leaderboard.map((row, index) => {
                 const yourVote = votesByCurrentUserAndArtist.get(row.artistId);
                 const stats = voteStatsByArtist.get(row.artistId);
-
                 return (
-                  <div key={row.artistId} className="grid grid-cols-[48px_36px_1fr_auto] items-center gap-3 rounded-xl bg-black/25 p-3">
-                    <div className="h-12 w-12 overflow-hidden rounded-lg bg-black/30">
-                      {row.imageUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={row.imageUrl} alt={row.artistName} className="h-full w-full object-cover" referrerPolicy="no-referrer" />
-                      ) : (
-                        <div className="flex h-full items-center justify-center text-xl">🎤</div>
-                      )}
+                  <div key={row.artistId} className="rounded-xl border border-white/15 bg-black/35 px-3 py-2.5">
+                    <div className="grid grid-cols-[2rem_1fr_auto] items-center gap-2">
+                      <span className="text-right text-lg font-black tabular-nums text-white/85">{index + 1}</span>
+                      <div className="min-w-0">
+                        <p className="truncate text-base font-bold text-white">{row.artistName}</p>
+                        {row.songTitle ? <p className="truncate text-sm text-white/65">♪ {row.songTitle}</p> : null}
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs font-semibold uppercase tracking-wider text-white/60">Total</p>
+                        <p className="text-lg font-black tabular-nums text-white">{row.totalAverage.toFixed(1)}</p>
+                      </div>
                     </div>
-                    <div className="text-center text-xl font-black">{index + 1}</div>
-                    <div>
-                      <p className="text-xl font-bold">{row.artistName}</p>
-                      {row.songTitle ? <p className="text-sm text-cyan-200">♪ {row.songTitle}</p> : null}
-                      <p className="text-base text-white/80">{row.voteCount} votes</p>
-                      <p className="mt-1 text-base text-white/95">
-                        You: <strong>{yourVote ? `${yourVote.total}/20` : "—"}</strong> · Avg: <strong>{row.totalAverage.toFixed(1)}</strong>
-                      </p>
-                      <p className="text-base text-rose-200/95">
-                        Lowest: <strong>{stats?.lowest ? `${stats.lowest.voter} (${stats.lowest.total})` : "—"}</strong>
-                      </p>
-                      <p className="text-base text-emerald-200/95">
-                        Highest: <strong>{stats?.highest ? `${stats.highest.voter} (${stats.highest.total})` : "—"}</strong>
-                      </p>
-                    </div>
-                    <div className="text-right text-base">
-                      <p>Song <strong>{row.songAverage.toFixed(1)}</strong></p>
-                      <p>Show <strong>{row.showAverage.toFixed(1)}</strong></p>
-                      <p className="text-lg font-black text-cyan-300">Total {row.totalAverage.toFixed(1)}</p>
+
+                    <div className="mt-2 rounded-md border border-white/10 bg-black/25 px-2 py-1.5">
+                      <div className="grid grid-cols-[3rem_3rem_3rem_1fr_3.8rem] gap-1 text-xs font-semibold uppercase tracking-wide text-white/60">
+                        <span className="text-right">Votes</span>
+                        <span className="text-right">Song</span>
+                        <span className="text-right">Show</span>
+                        <span className="text-right">High/Low</span>
+                        <span className="text-right">You</span>
+                      </div>
+                      <div className="mt-0.5 grid grid-cols-[3rem_3rem_3rem_1fr_3.8rem] gap-1 text-sm">
+                        <span className="text-right font-bold tabular-nums text-white/90">{row.voteCount}</span>
+                        <span className="text-right font-bold tabular-nums text-white/90">{row.songAverage.toFixed(1)}</span>
+                        <span className="text-right font-bold tabular-nums text-white/90">{row.showAverage.toFixed(1)}</span>
+                        <span className="text-right text-xs leading-tight">
+                          <span className="block truncate font-semibold tabular-nums text-emerald-200/95">
+                            H {stats?.highest ? `${stats.highest.voter.slice(0, 8)} ${stats.highest.total}` : "—"}
+                          </span>
+                          <span className="block truncate font-semibold tabular-nums text-rose-200/95">
+                            L {stats?.lowest ? `${stats.lowest.voter.slice(0, 8)} ${stats.lowest.total}` : "—"}
+                          </span>
+                        </span>
+                        <span className="text-right font-bold tabular-nums text-cyan-200">{yourVote ? `${yourVote.total}/24` : "—"}</span>
+                      </div>
                     </div>
                   </div>
                 );
               })}
             </div>
+
+            <div className="hidden overflow-x-auto rounded-xl border border-white/15 bg-black/35 md:block">
+              <div className="min-w-[840px]">
+                <div className="grid grid-cols-[2.5rem_1fr_4rem_4rem_4rem_4rem_6.75rem_6.75rem_5rem] gap-2 border-b border-white/15 bg-black/45 px-3 py-2 text-xs font-bold uppercase tracking-wider text-white/70">
+                  <span className="text-right">#</span>
+                  <span>Artist</span>
+                  <span className="text-right">Votes</span>
+                  <span className="text-right">Song</span>
+                  <span className="text-right">Show</span>
+                  <span className="text-right">Total</span>
+                  <span className="text-right">Lowest</span>
+                  <span className="text-right">Highest</span>
+                  <span className="text-right">You</span>
+                </div>
+
+                <div className="divide-y divide-white/10">
+                  {leaderboard.map((row, index) => {
+                    const yourVote = votesByCurrentUserAndArtist.get(row.artistId);
+                    const stats = voteStatsByArtist.get(row.artistId);
+                    const lowestLabel = stats?.lowest ? `${stats.lowest.voter.slice(0, 8)} ${stats.lowest.total}` : "—";
+                    const highestLabel = stats?.highest ? `${stats.highest.voter.slice(0, 8)} ${stats.highest.total}` : "—";
+
+                    return (
+                      <div key={row.artistId} className="grid grid-cols-[2.5rem_1fr_4rem_4rem_4rem_4rem_6.75rem_6.75rem_5rem] items-center gap-2 px-3 py-2 text-base">
+                        <span className="text-right font-black tabular-nums text-white/85">{index + 1}</span>
+                        <div className="min-w-0">
+                          <p className="truncate font-bold text-white">{row.artistName}</p>
+                          {row.songTitle ? <p className="truncate text-sm text-white/65">♪ {row.songTitle}</p> : null}
+                        </div>
+                        <span className="text-right font-semibold tabular-nums text-white/80">{row.voteCount}</span>
+                        <span className="text-right font-semibold tabular-nums text-white/85">{row.songAverage.toFixed(1)}</span>
+                        <span className="text-right font-semibold tabular-nums text-white/85">{row.showAverage.toFixed(1)}</span>
+                        <span className="text-right font-black tabular-nums text-white">{row.totalAverage.toFixed(1)}</span>
+                        <span className="text-right text-sm font-semibold tabular-nums text-rose-200/95">{lowestLabel}</span>
+                        <span className="text-right text-sm font-semibold tabular-nums text-emerald-200/95">{highestLabel}</span>
+                        <span className="text-right font-bold tabular-nums text-cyan-200">{yourVote ? `${yourVote.total}/24` : "—"}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
             <div className="mt-4 text-center">
-              <button onClick={() => refreshState().catch(() => setErrorMessage("Refresh failed"))} className="text-xs text-white/50 underline hover:text-white/80">
+              <button onClick={() => refreshState().catch(() => setErrorMessage("Refresh failed"))} className="text-sm text-white/50 underline hover:text-white/80">
                 Refresh now
               </button>
             </div>

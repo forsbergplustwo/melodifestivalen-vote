@@ -34,9 +34,10 @@ export function Slider({
   const trackClass = isLarge ? "slider-track slider-track--lg" : "slider-track";
   const rangeClass = isLarge ? "slider-range slider-range--lg" : "slider-range";
   const thumbClass = isLarge ? "slider-thumb slider-thumb--lg" : "slider-thumb";
+  const spacingClass = label ? (isLarge ? "mb-4" : "mb-3") : "";
 
   return (
-    <div className={`${isLarge ? "mb-4" : "mb-3"} ${className ?? ""}`}>
+    <div className={`${spacingClass} ${className ?? ""}`}>
       {label ? (
         <label className={`mb-2 block font-semibold ${isLarge ? "text-base" : "text-sm"}`}>
           {label}: {valueDisplay}

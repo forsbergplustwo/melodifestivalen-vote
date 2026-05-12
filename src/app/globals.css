@@ -17,7 +17,7 @@ body {
 
 @media (max-width: 767px) {
   html {
-    font-size: calc(16px + 2px);
+    font-size: calc(16px + 3px);
   }
 }
 
@@ -28,7 +28,7 @@ html.mobile-vote-page-snap body {
 
 html.mobile-vote-page-snap {
   scroll-behavior: smooth;
-  scroll-padding-top: calc(2.75rem + env(safe-area-inset-top));
+  scroll-padding-top: calc(3.5rem + env(safe-area-inset-top));
 }
 
 .vote-deck-anchor {
@@ -73,51 +73,6 @@ html.mobile-vote-page-snap {
 .slider-thumb:focus {
   outline: none;
   box-shadow: 0 0 0 3px rgba(139, 61, 255, 0.35), 0 0 12px rgba(139, 61, 255, 0.55);
-}
-
-.confetti-origin {
-  position: absolute;
-  width: 0;
-  height: 0;
-}
-
-.confetti-origin--good {
-  filter: drop-shadow(0 0 10px rgba(255, 227, 77, 0.75));
-}
-
-.confetti-origin--ok {
-  filter: drop-shadow(0 0 10px rgba(144, 238, 255, 0.6));
-}
-
-.confetti-origin--bad {
-  filter: drop-shadow(0 0 10px rgba(255, 120, 120, 0.6));
-}
-
-.confetti-particle {
-  position: absolute;
-  left: 0;
-  top: 0;
-  font-size: 1.8rem;
-  font-weight: 800;
-  opacity: 0;
-  transform: translate(-50%, -50%);
-  animation: confetti-cannon 1.9s ease-out forwards;
-  animation-delay: var(--delay, 0ms);
-  text-shadow: 0 8px 18px rgba(0, 0, 0, 0.45);
-}
-
-@keyframes confetti-cannon {
-  0% {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0.7);
-  }
-  10% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0.35;
-    transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(var(--rot)) scale(1.15);
-  }
 }
 
 .pulse-dot::before {
@@ -218,7 +173,7 @@ html.mobile-vote-page-snap {
 .vote-pulse-toast {
   animation:
     vote-pulse-in 0.38s ease-out both,
-    vote-pulse-out 0.45s ease-in 3.5s forwards;
+    vote-pulse-out 0.45s ease-in 9.5s forwards;
 }
 
 @keyframes vote-slider-nudge {
@@ -238,11 +193,6 @@ html.mobile-vote-page-snap {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .confetti-particle {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-  }
-
   .vote-pulse-enter,
   .vote-pulse-leave,
   .vote-slider-nudge {
