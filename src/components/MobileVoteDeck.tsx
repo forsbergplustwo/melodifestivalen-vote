@@ -213,7 +213,7 @@ export function MobileVoteDeck({
                     type="button"
                     onClick={(event) => void submitVote(artist.id, event)}
                     disabled={savingVoteForArtistId === artist.id}
-                    className="vote-deck-cta mt-6 mb-1 min-h-[44px] w-full rounded-2xl bg-gradient-to-r from-fuchsia-500 via-violet-500 to-blue-500 px-4 py-2.5 text-xl font-black text-white shadow-lg shadow-fuchsia-900/35 active:scale-[0.98] disabled:opacity-50"
+                    className="vote-deck-cta mt-6 mb-1 min-h-[44px] w-full rounded-2xl bg-gradient-to-r from-fuchsia-500 via-violet-500 to-blue-500 px-4 py-2.5 text-base font-black text-white shadow-lg shadow-fuchsia-900/35 active:scale-[0.98] disabled:opacity-50"
                   >
                     {savingVoteForArtistId === artist.id ? "Saving…" : `Submit ${sum} points to ${artist.country ?? artist.name}`}
                   </button>
