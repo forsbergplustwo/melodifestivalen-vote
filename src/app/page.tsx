@@ -692,6 +692,173 @@ export default function Home() {
     return standings;
   }, [votes, qualifiedByArtistId]);
 
+  const funStats = useMemo(() => {
+    if (!votes.length) return null;
+
+    const voterList = [...new Set(votes.map((v) => v.voter.trim()).filter(Boolean))];
+    if (voterList.length < 2) return null;
+
+    const artistById = new Map(artists.map((a) => [a.id, a]));
+
+    // Build per-voter maps
+    const voterMap = new Map<string, Map<string, { total: number; song: number; show: number }>>();
+    for (const vote of votes) {
+      let map = voterMap.get(vote.voter);
+      if (!map) {
+        map = new Map();
+        voterMap.set(vote.voter, map);
+      }
+      map.set(vote.artistId, { total: vote.total, song: vote.song, show: vote.show });
+    }
+
+    // ---- Twin Flames & Villain Arc (ranking correlation) ----
+    function getRankings(voter: string) {
+      const map = voterMap.get(voter);
+      if (!map) return [];
+      return [...map.entries()].sort((a, b) => b[1].total - a[1].total).map(([id], i) => ({ artistId: id, rank: i + 1 }));
+    }
+
+    function rankCorrelation(a: { artistId: string; rank: number }[], b: { artistId: string; rank: number }[]) {
+      const shared = a.filter((aa) => b.some((bb) => bb.artistId === aa.artistId)).map((aa) => aa.artistId);
+      if (shared.length < 2) return 0;
+      const aRanks = shared.map((id) => a.find((x) => x.artistId === id)!.rank);
+      const bRanks = shared.map((id) => b.find((x) => x.artistId === id)!.rank);
+      // Kendall Tau-like: count concordant - discordant pairs
+      let concordant = 0;
+      let discordant = 0;
+      for (let i = 0; i < shared.length; i++) {
+        for (let j = i + 1; j < shared.length; j++) {
+          const aDiff = aRanks[i] - aRanks[j];
+          const bDiff = bRanks[i] - bRanks[j];
+          if (aDiff * bDiff > 0) concordant++;
+          else if (aDiff * bDiff < 0) discordant++;
+        }
+      }
+      const total = concordant + discordant;
+      return total === 0 ? 0 : (concordant - discordant) / total;
+    }
+
+    let bestCorrelation = -1;
+    let twinFlames: [string, string] | null = null;
+    let worstCorrelation = 1;
+    let villainArc: [string, string] | null = null;
+
+    for (let i = 0; i < voterList.length; i++) {
+      for (let j = i + 1; j < voterList.length; j++) {
+        const a = getRankings(voterList[i]);
+        const b = getRankings(voterList[j]);
+        const corr = rankCorrelation(a, b);
+        if (corr > bestCorrelation) {
+          bestCorrelation = corr;
+          twinFlames = [voterList[i], voterList[j]];
+        }
+        if (corr < worstCorrelation) {
+          worstCorrelation = corr;
+          villainArc = [voterList[i], voterList[j]];
+        }
+      }
+    }
+
+    // ---- Most Generous / Most Ruthless ----
+    const voterAvgs = voterList.map((voter) => {
+      const map = voterMap.get(voter)!;
+      const totals = [...map.values()].map((v) => v.total);
+      const avg = totals.reduce((s, t) => s + t, 0) / totals.length;
+      return { voter, avg, count: totals.length };
+    });
+    const mostGenerous = [...voterAvgs].sort((a, b) => b.avg - a.avg)[0];
+    const mostRuthless = [...voterAvgs].sort((a, b) => a.avg - b.avg)[0];
+
+    // ---- Controversial & Consensus artists ----
+    const artistVotes = new Map<string, number[]>();
+    for (const vote of votes) {
+      const list = artistVotes.get(vote.artistId) ?? [];
+      list.push(vote.total);
+      artistVotes.set(vote.artistId, list);
+    }
+    const artistStats = [...artistVotes.entries()].map(([id, list]) => {
+      const mean = list.reduce((s, t) => s + t, 0) / list.length;
+      const variance = list.reduce((s, t) => s + Math.pow(t - mean, 2), 0) / list.length;
+      const artist = artistById.get(id);
+      return { id, name: artist?.country || artist?.name || id, flag: artist?.flag, mean, stdDev: Math.sqrt(variance), count: list.length };
+    });
+    const mostControversial = [...artistStats].sort((a, b) => b.stdDev - a.stdDev)[0];
+    const mostConsensus = [...artistStats].sort((a, b) => a.stdDev - b.stdDev)[0];
+
+    // ---- Biggest Glow-Up (show > song) ----
+    const glowUps = [...artistVotes.entries()].map(([id, _totals]) => {
+      const songScores = votes.filter((v) => v.artistId === id).map((v) => v.song);
+      const showScores = votes.filter((v) => v.artistId === id).map((v) => v.show);
+      const songAvg = songScores.reduce((s, t) => s + t, 0) / songScores.length;
+      const showAvg = showScores.reduce((s, t) => s + t, 0) / showScores.length;
+      const artist = artistById.get(id);
+      return { id, name: artist?.country || artist?.name || id, flag: artist?.flag, gap: showAvg - songAvg, songAvg, showAvg };
+    }).filter((a) => !Number.isNaN(a.gap));
+    const biggestGlowUp = [...glowUps].sort((a, b) => b.gap - a.gap)[0];
+    const biggestLetDown = [...glowUps].sort((a, b) => a.gap - b.gap)[0];
+
+    // ---- Most Polarizing Pair (single-artist disagreement) ----
+    let maxDisagreement = 0;
+    let polarizingPair: { voterA: string; voterB: string; artist: string; diff: number } | null = null;
+    for (const [artistId, list] of artistVotes) {
+      for (let i = 0; i < list.length; i++) {
+        for (let j = i + 1; j < list.length; j++) {
+          const voteA = votes.find((v) => v.artistId === artistId && v.total === list[i]);
+          const voteB = votes.find((v) => v.artistId === artistId && v.total === list[j]);
+          if (!voteA || !voteB || voteA.voter === voteB.voter) continue;
+          const diff = Math.abs(voteA.total - voteB.total);
+          if (diff > maxDisagreement) {
+            maxDisagreement = diff;
+            const artist = artistById.get(artistId);
+            polarizingPair = { voterA: voteA.voter, voterB: voteB.voter, artist: artist?.country || artist?.name || artistId, diff };
+          }
+        }
+      }
+    }
+
+    // ---- Secret Alliance (most similar top 3) ----
+    function getTop3(voter: string) {
+      const map = voterMap.get(voter);
+      if (!map) return [];
+      return [...map.entries()].sort((a, b) => b[1].total - a[1].total).slice(0, 3).map(([id]) => id);
+    }
+    let bestAlliance = 0;
+    let secretAlliance: [string, string] | null = null;
+    for (let i = 0; i < voterList.length; i++) {
+      for (let j = i + 1; j < voterList.length; j++) {
+        const a = getTop3(voterList[i]);
+        const b = getTop3(voterList[j]);
+        const shared = a.filter((id) => b.includes(id)).length;
+        if (shared > bestAlliance) {
+          bestAlliance = shared;
+          secretAlliance = [voterList[i], voterList[j]];
+        }
+      }
+    }
+
+    // ---- The Harshest Critic & The Softie (single extreme score) ----
+    const lowestVote = [...votes].sort((a, b) => a.total - b.total)[0];
+    const highestVote = [...votes].sort((a, b) => b.total - a.total)[0];
+
+    return {
+      twinFlames,
+      twinFlamesScore: bestCorrelation,
+      villainArc,
+      villainArcScore: worstCorrelation,
+      mostGenerous,
+      mostRuthless,
+      mostControversial,
+      mostConsensus,
+      biggestGlowUp,
+      biggestLetDown,
+      polarizingPair,
+      secretAlliance,
+      secretAllianceOverlap: bestAlliance,
+      harshestCritic: lowestVote ? { voter: lowestVote.voter, artist: artistById.get(lowestVote.artistId)?.country || artistById.get(lowestVote.artistId)?.name || lowestVote.artistId, total: lowestVote.total } : null,
+      softie: highestVote ? { voter: highestVote.voter, artist: artistById.get(highestVote.artistId)?.country || artistById.get(highestVote.artistId)?.name || highestVote.artistId, total: highestVote.total } : null,
+    };
+  }, [votes, artists]);
+
   const partyMembersLabel = useMemo(() => {
     const namesByKey = new Map<string, { name: string; lastSeenMs: number }>();
 
@@ -1483,6 +1650,110 @@ export default function Home() {
                 </div>
               )}
             </div>
+
+            {funStats && (
+              <div className="rounded-xl border border-fuchsia-400/30 bg-fuchsia-500/10 p-4">
+                <h3 className="mb-3 text-sm font-black uppercase tracking-wide text-fuchsia-200">🧠 The Tea</h3>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {funStats.twinFlames && (
+                    <div className="rounded-lg bg-black/25 p-3">
+                      <p className="text-xs font-bold uppercase tracking-wider text-fuchsia-300">🔮 Twin Flames</p>
+                      <p className="mt-1 text-sm text-white/90">
+                        <span className="font-bold text-white">{funStats.twinFlames[0]}</span> and <span className="font-bold text-white">{funStats.twinFlames[1]}</span> are basically the same person. Their rankings are {Math.round((funStats.twinFlamesScore + 1) * 50)}% aligned.
+                      </p>
+                    </div>
+                  )}
+                  {funStats.villainArc && (
+                    <div className="rounded-lg bg-black/25 p-3">
+                      <p className="text-xs font-bold uppercase tracking-wider text-fuchsia-300">⚔️ Villain Arc</p>
+                      <p className="mt-1 text-sm text-white/90">
+                        <span className="font-bold text-white">{funStats.villainArc[0]}</span> and <span className="font-bold text-white">{funStats.villainArc[1]}</span> fundamentally disagree on everything. Their tastes are {Math.round((1 - (funStats.villainArcScore + 1) / 2) * 100)}% opposed.
+                      </p>
+                    </div>
+                  )}
+                  {funStats.secretAlliance && (
+                    <div className="rounded-lg bg-black/25 p-3">
+                      <p className="text-xs font-bold uppercase tracking-wider text-fuchsia-300">🤝 Secret Alliance</p>
+                      <p className="mt-1 text-sm text-white/90">
+                        <span className="font-bold text-white">{funStats.secretAlliance[0]}</span> and <span className="font-bold text-white">{funStats.secretAlliance[1]}</span> share {funStats.secretAllianceOverlap} of their top 3 picks. Suspicious.
+                      </p>
+                    </div>
+                  )}
+                  {funStats.polarizingPair && (
+                    <div className="rounded-lg bg-black/25 p-3">
+                      <p className="text-xs font-bold uppercase tracking-wider text-fuchsia-300">💥 Most Heated Argument</p>
+                      <p className="mt-1 text-sm text-white/90">
+                        <span className="font-bold text-white">{funStats.polarizingPair.voterA}</span> and <span className="font-bold text-white">{funStats.polarizingPair.voterB}</span> had a <span className="font-bold text-white">{funStats.polarizingPair.diff}-point</span> disagreement over <span className="font-bold text-white">{funStats.polarizingPair.artist}</span>.
+                      </p>
+                    </div>
+                  )}
+                  {funStats.mostGenerous && (
+                    <div className="rounded-lg bg-black/25 p-3">
+                      <p className="text-xs font-bold uppercase tracking-wider text-fuchsia-300">🍰 The Softie</p>
+                      <p className="mt-1 text-sm text-white/90">
+                        <span className="font-bold text-white">{funStats.mostGenerous.voter}</span> is handing out points like candy. Average score: <span className="font-bold text-white">{funStats.mostGenerous.avg.toFixed(1)}</span>.
+                      </p>
+                    </div>
+                  )}
+                  {funStats.mostRuthless && (
+                    <div className="rounded-lg bg-black/25 p-3">
+                      <p className="text-xs font-bold uppercase tracking-wider text-fuchsia-300">🪑 Simon Cowell</p>
+                      <p className="mt-1 text-sm text-white/90">
+                        <span className="font-bold text-white">{funStats.mostRuthless.voter}</span> brought a chair to throw. Average score: <span className="font-bold text-white">{funStats.mostRuthless.avg.toFixed(1)}</span>.
+                      </p>
+                    </div>
+                  )}
+                  {funStats.mostControversial && (
+                    <div className="rounded-lg bg-black/25 p-3">
+                      <p className="text-xs font-bold uppercase tracking-wider text-fuchsia-300">🎭 Divisive Darling</p>
+                      <p className="mt-1 text-sm text-white/90">
+                        <span className="font-bold text-white">{funStats.mostControversial.name}</span> {funStats.mostControversial.flag} split the room. Score variance: <span className="font-bold text-white">{funStats.mostControversial.stdDev.toFixed(1)}</span>.
+                      </p>
+                    </div>
+                  )}
+                  {funStats.mostConsensus && (
+                    <div className="rounded-lg bg-black/25 p-3">
+                      <p className="text-xs font-bold uppercase tracking-wider text-fuchsia-300">🤷 Boring But Correct</p>
+                      <p className="mt-1 text-sm text-white/90">
+                        <span className="font-bold text-white">{funStats.mostConsensus.name}</span> {funStats.mostConsensus.flag} — everyone basically agrees. Variance: <span className="font-bold text-white">{funStats.mostConsensus.stdDev.toFixed(1)}</span>.
+                      </p>
+                    </div>
+                  )}
+                  {funStats.biggestGlowUp && (
+                    <div className="rounded-lg bg-black/25 p-3">
+                      <p className="text-xs font-bold uppercase tracking-wider text-fuchsia-300">✨ Glow-Up of the Night</p>
+                      <p className="mt-1 text-sm text-white/90">
+                        <span className="font-bold text-white">{funStats.biggestGlowUp.name}</span> {funStats.biggestGlowUp.flag} — the staging carried hard. Show ({funStats.biggestGlowUp.showAvg.toFixed(1)}) beat Song ({funStats.biggestGlowUp.songAvg.toFixed(1)}) by <span className="font-bold text-white">{funStats.biggestGlowUp.gap.toFixed(1)}</span> points.
+                      </p>
+                    </div>
+                  )}
+                  {funStats.biggestLetDown && (
+                    <div className="rounded-lg bg-black/25 p-3">
+                      <p className="text-xs font-bold uppercase tracking-wider text-fuchsia-300">📉 Staging Betrayal</p>
+                      <p className="mt-1 text-sm text-white/90">
+                        <span className="font-bold text-white">{funStats.biggestLetDown.name}</span> {funStats.biggestLetDown.flag} — great song, cursed staging. Song ({funStats.biggestLetDown.songAvg.toFixed(1)}) outshone Show ({funStats.biggestLetDown.showAvg.toFixed(1)}) by <span className="font-bold text-white">{Math.abs(funStats.biggestLetDown.gap).toFixed(1)}</span> points.
+                      </p>
+                    </div>
+                  )}
+                  {funStats.harshestCritic && (
+                    <div className="rounded-lg bg-black/25 p-3">
+                      <p className="text-xs font-bold uppercase tracking-wider text-fuchsia-300">💀 The Execution</p>
+                      <p className="mt-1 text-sm text-white/90">
+                        <span className="font-bold text-white">{funStats.harshestCritic.voter}</span> dropped a <span className="font-bold text-white">{funStats.harshestCritic.total}</span> on <span className="font-bold text-white">{funStats.harshestCritic.artist}</span>. Brutal.
+                      </p>
+                    </div>
+                  )}
+                  {funStats.softie && funStats.softie.total !== funStats.harshestCritic?.total && (
+                    <div className="rounded-lg bg-black/25 p-3">
+                      <p className="text-xs font-bold uppercase tracking-wider text-fuchsia-300">🥹 True Believer</p>
+                      <p className="mt-1 text-sm text-white/90">
+                        <span className="font-bold text-white">{funStats.softie.voter}</span> gave <span className="font-bold text-white">{funStats.softie.artist}</span> a <span className="font-bold text-white">{funStats.softie.total}</span>. They see something we don&apos;t.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
