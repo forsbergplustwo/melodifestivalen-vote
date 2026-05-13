@@ -3,7 +3,7 @@ import { fetchLiveFeed, type LiveFeedResponse } from "@/lib/liveFeed";
 
 let cachedData: LiveFeedResponse | null = null;
 let cachedAt = 0;
-const CACHE_TTL_MS = 48 * 60 * 60 * 1000; // 48 hours
+const CACHE_TTL_MS = 2500;
 
 export async function GET() {
   try {

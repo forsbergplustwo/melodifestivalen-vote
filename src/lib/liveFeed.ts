@@ -17,6 +17,7 @@ export type LiveFeedResponse = {
   fetchedAt: string;
   activeArtist: LiveStanding | null;
   standings: LiveStanding[];
+  usesPoints: boolean;
 };
 
 export type LiveHistoryFrame = {
@@ -135,6 +136,18 @@ export async function fetchLiveFeed(eventId?: string): Promise<LiveFeedResponse>
   const eid = eventId ?? (await getActiveEventId());
   const config = await getEventConfig(eid);
   const source = config.liveSource.url;
+  const isSemi = /semi/i.test(config.activeSubEvent);
+
+  const fallbackStandings: LiveStanding[] = [...config.artists]
+    .sort((left, right) => (left.runningOrder ?? 999) - (right.runningOrder ?? 999))
+    .map((artist, index) => ({
+      artistId: artist.id,
+      artist: artist.name,
+      song: artist.song ?? "Unknown",
+      points: 0,
+      runningOrder: artist.runningOrder ?? index + 1,
+      delta: 0,
+    }));
 
   const response = await fetch(source, {
     headers: { "User-Agent": "Mozilla/5.0 (eurovision-vote live parser)" },
@@ -142,12 +155,37 @@ export async function fetchLiveFeed(eventId?: string): Promise<LiveFeedResponse>
   });
 
   if (!response.ok) {
+    if (isSemi) {
+      return {
+        source,
+        fetchedAt: new Date().toISOString(),
+        activeArtist: null,
+        standings: fallbackStandings,
+        usesPoints: false,
+      };
+    }
     throw new Error(`Source fetch failed: ${response.status}`);
   }
 
   const html = await response.text();
-  const nationalSongsRaw = extractObject(html, "national_songs");
-  const nationalTablesRaw = extractObject(html, "national_tables");
+  let nationalSongsRaw = "";
+  let nationalTablesRaw = "";
+
+  try {
+    nationalSongsRaw = extractObject(html, "national_songs");
+    nationalTablesRaw = extractObject(html, "national_tables");
+  } catch (error) {
+    if (isSemi) {
+      return {
+        source,
+        fetchedAt: new Date().toISOString(),
+        activeArtist: null,
+        standings: fallbackStandings,
+        usesPoints: false,
+      };
+    }
+    throw error;
+  }
 
   const nationalSongs = evaluateObject(nationalSongsRaw) as LiveSourceSongs;
   const nationalTables = evaluateObject(nationalTablesRaw) as LiveSourceTables;
@@ -207,6 +245,7 @@ export async function fetchLiveFeed(eventId?: string): Promise<LiveFeedResponse>
     fetchedAt: new Date().toISOString(),
     activeArtist,
     standings: byPoints,
+    usesPoints: !isSemi,
   };
 
   await appendLiveHistoryFrame(

@@ -4,7 +4,7 @@ import { getActiveEventId, getEventConfig, eventStateFileName } from "./eventCon
 import { generateRoomCode, normalizeRoomCode } from "./rooms";
 import { normalizeEurovisionPoints } from "./eurovisionPoints";
 
-type Artist = { id: string; name: string; song?: string; country?: string; flag?: string; imageUrl?: string };
+type Artist = { id: string; name: string; song?: string; country?: string; flag?: string; imageUrl?: string; runningOrder?: number };
 type Vote = {
   id: string;
   voter: string;
@@ -16,15 +16,34 @@ type Vote = {
   updatedAt: string;
 };
 
-type State = { eventId: string; roomCode: string; artists: Artist[]; votes: Vote[] };
+type PresenceEvent = {
+  id: string;
+  voter: string;
+  joinedAt: string;
+};
+
+type Participant = {
+  voter: string;
+  lastSeenAt: string;
+};
+
+type ReactionEvent = {
+  id: string;
+  voter: string;
+  artistId: string;
+  emoji: string;
+  exact?: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
+type State = { eventId: string; roomCode: string; creator?: string; artists: Artist[]; votes: Vote[]; presenceEvents: PresenceEvent[]; participants: Participant[]; reactionEvents: ReactionEvent[] };
 
 const dataDir = path.join(process.cwd(), "data");
-const defaultRoomCode = "GLOBAL";
-
 function normalizeRoomOrThrow(roomCode?: string) {
-  const normalized = normalizeRoomCode(roomCode ?? defaultRoomCode);
+  const normalized = normalizeRoomCode(roomCode ?? "");
   if (!normalized) {
-    throw new Error("Invalid room code");
+    throw new Error("Invalid or missing room code");
   }
   return normalized;
 }
@@ -60,12 +79,13 @@ async function ensureStateFile(filePath: string, eventId: string, roomCode: stri
         country: a.country,
         flag: a.flag,
         imageUrl: a.imageUrl,
+        runningOrder: a.runningOrder,
       }));
     } catch {
       // no config found, empty artists
     }
 
-    await fs.writeFile(filePath, JSON.stringify({ eventId, roomCode, artists, votes: [] } satisfies State, null, 2), "utf8");
+    await fs.writeFile(filePath, JSON.stringify({ eventId, roomCode, artists, votes: [], presenceEvents: [], participants: [], reactionEvents: [] } satisfies State, null, 2), "utf8");
   }
 }
 
@@ -82,7 +102,7 @@ export async function roomExists(roomCode: string, eventId?: string, subEvent?: 
   }
 }
 
-export async function createRoom(eventId?: string, subEvent?: string): Promise<string> {
+export async function createRoom(creator?: string, eventId?: string, subEvent?: string): Promise<string> {
   const eid = eventId ?? (await getActiveEventId());
   const sub = subEvent ?? (await getEventConfig(eid).then((c) => c.activeSubEvent).catch(() => undefined));
 
@@ -91,6 +111,13 @@ export async function createRoom(eventId?: string, subEvent?: string): Promise<s
     const exists = await roomExists(nextRoomCode, eid, sub);
     if (exists) continue;
     await ensureStateFile(roomStateFilePath(eid, nextRoomCode, sub), eid, nextRoomCode);
+    if (creator) {
+      const fp = roomStateFilePath(eid, nextRoomCode, sub);
+      const raw = await fs.readFile(fp, "utf8");
+      const parsed = JSON.parse(raw) as Partial<State>;
+      parsed.creator = creator;
+      await fs.writeFile(fp, JSON.stringify(parsed, null, 2), "utf8");
+    }
     return nextRoomCode;
   }
 
@@ -102,23 +129,43 @@ export async function readState(eventId?: string, subEvent?: string, roomCode?: 
   const eid = eventId ?? (await getActiveEventId());
   const sub = subEvent ?? (await getEventConfig(eid).then((c) => c.activeSubEvent).catch(() => undefined));
   const fp = roomStateFilePath(eid, normalizedRoomCode, sub);
-  if (normalizedRoomCode === defaultRoomCode) {
-    try {
-      await fs.access(fp);
-    } catch {
-      const legacyPath = legacyStateFilePath(eid, sub);
-      try {
-        await fs.access(legacyPath);
-        await fs.mkdir(path.dirname(fp), { recursive: true });
-        await fs.copyFile(legacyPath, fp);
-      } catch {
-        // no legacy file found, continue with fresh room state
-      }
-    }
-  }
   await ensureStateFile(fp, eid, normalizedRoomCode);
   const content = await fs.readFile(fp, "utf8");
-  return JSON.parse(content) as State;
+  const parsed = JSON.parse(content) as Partial<State>;
+
+  let artists = parsed.artists ?? [];
+  try {
+    const config = await getEventConfig(eid);
+    const configArtistsById = new Map(
+      config.artists.map((artist) => [artist.id, artist] as const)
+    );
+
+    artists = artists.map((artist) => {
+      const fromConfig = configArtistsById.get(artist.id);
+      return {
+        ...artist,
+        runningOrder: artist.runningOrder ?? fromConfig?.runningOrder,
+        country: artist.country ?? fromConfig?.country,
+        flag: artist.flag ?? fromConfig?.flag,
+      };
+    });
+  } catch {
+    // keep stored artists if config is unavailable
+  }
+
+  return {
+    eventId: parsed.eventId ?? eid,
+    roomCode: parsed.roomCode ?? normalizedRoomCode,
+    creator: parsed.creator,
+    artists,
+    votes: parsed.votes ?? [],
+    presenceEvents: parsed.presenceEvents ?? [],
+    participants: parsed.participants ?? [],
+    reactionEvents: (parsed.reactionEvents ?? []).map((event) => ({
+      ...event,
+      updatedAt: event.updatedAt ?? event.createdAt,
+    })),
+  };
 }
 
 export async function writeState(nextState: State, eventId?: string, subEvent?: string, roomCode?: string): Promise<void> {
@@ -157,6 +204,74 @@ export async function upsertVote(input: { voter: string; artistId: string; song:
       createdAt: nowIso,
       updatedAt: nowIso,
     });
+  }
+
+  await writeState(state, eid, undefined, roomCode);
+  return state;
+}
+
+export async function registerPresence(input: { voter: string }, eventId?: string, roomCode?: string) {
+  const voter = input.voter.trim();
+  if (!voter) {
+    throw new Error("Missing voter");
+  }
+
+  const eid = eventId ?? (await getActiveEventId());
+  const state = await readState(eid, undefined, roomCode);
+  const nowIso = new Date().toISOString();
+
+  const existingParticipant = state.participants.find((participant) => participant.voter.toLowerCase() === voter.toLowerCase());
+  if (existingParticipant) {
+    existingParticipant.lastSeenAt = nowIso;
+  } else {
+    state.participants.push({ voter, lastSeenAt: nowIso });
+    state.presenceEvents.push({
+      id: crypto.randomUUID(),
+      voter,
+      joinedAt: nowIso,
+    });
+  }
+
+  if (state.presenceEvents.length > 300) {
+    state.presenceEvents = state.presenceEvents.slice(-300);
+  }
+
+  await writeState(state, eid, undefined, roomCode);
+  return state;
+}
+
+export async function registerReaction(input: { voter: string; artistId: string; emoji: string; exact?: boolean }, eventId?: string, roomCode?: string) {
+  const voter = input.voter.trim();
+  const artistId = input.artistId.trim();
+  if (!voter || !artistId) {
+    throw new Error("Missing voter or artistId");
+  }
+
+  const eid = eventId ?? (await getActiveEventId());
+  const state = await readState(eid, undefined, roomCode);
+  const nowIso = new Date().toISOString();
+  const existingReaction = state.reactionEvents.find(
+    (event) => event.artistId === artistId && event.voter.toLowerCase() === voter.toLowerCase()
+  );
+
+  if (existingReaction) {
+    existingReaction.emoji = input.emoji;
+    existingReaction.exact = Boolean(input.exact);
+    existingReaction.updatedAt = nowIso;
+  } else {
+    state.reactionEvents.push({
+      id: crypto.randomUUID(),
+      voter,
+      artistId,
+      emoji: input.emoji,
+      exact: Boolean(input.exact),
+      createdAt: nowIso,
+      updatedAt: nowIso,
+    });
+  }
+
+  if (state.reactionEvents.length > 300) {
+    state.reactionEvents = state.reactionEvents.slice(-300);
   }
 
   await writeState(state, eid, undefined, roomCode);

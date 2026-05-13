@@ -8,7 +8,7 @@ import { Slider } from "@/components/slider";
 import { VotePulseDock, type VotePulseItem } from "@/components/VotePulseDock";
 import { normalizeEurovisionPoints } from "@/lib/eurovisionPoints";
 
-type Artist = { id: string; name: string; song?: string; imageUrl?: string; country?: string };
+type Artist = { id: string; name: string; song?: string; imageUrl?: string; country?: string; flag?: string; runningOrder?: number };
 type Vote = {
   id: string;
   voter: string;
@@ -22,6 +22,8 @@ type Vote = {
 type LeaderboardRow = {
   artistId: string;
   artistName: string;
+  country?: string;
+  flag?: string;
   songTitle?: string;
   imageUrl?: string;
   voteCount: number;
@@ -37,23 +39,51 @@ type EventInfo = {
   type: string;
 };
 
+type PresenceEvent = {
+  id: string;
+  voter: string;
+  joinedAt: string;
+};
+
+type Participant = {
+  voter: string;
+  lastSeenAt: string;
+};
+
+type ReactionEvent = {
+  id: string;
+  voter: string;
+  artistId: string;
+  emoji: string;
+  exact?: boolean;
+  createdAt: string;
+  updatedAt?: string;
+};
+
 type StateResponse = {
   artists: Artist[];
   votes: Vote[];
   leaderboard: LeaderboardRow[];
+  creator?: string;
+  presenceEvents?: PresenceEvent[];
+  participants?: Participant[];
+  reactionEvents?: ReactionEvent[];
 };
 
 type EventResponse = {
   active?: EventInfo | null;
 };
 
-const defaultScores = { song: 6, show: 6 };
+const defaultScores = { song: 0, show: 0 };
 const refreshToastVersion = "mello-refresh-toast-v1";
 const scrollPositionKey = "mello-scroll-y";
 const voteScrollPositionKey = "mello-vote-scroll-y";
 const roomCodeStorageKey = "mello-room-code";
+const activeTabStorageKey = "mello-active-tab";
 const officialEurovisionGradient = "radial-gradient(120% 150% at 90% -3%, #2200ff, #000c54 22.49%, #010a41 33.26%, #010a41 64.14%, #4c0a54 85.82%, #ff0178)";
 const officialEurovisionLogo = "/eurovision-official-logo.svg";
+const showVotePulseDock = true;
+const showJoinToasts = true;
 
 type RoomApiResponse = {
   roomCode?: string;
@@ -116,39 +146,45 @@ async function copyText(value: string): Promise<boolean> {
 }
 
 export default function Home() {
-  const [voterName, setVoterName] = useState(() => (typeof window === "undefined" ? "" : localStorage.getItem("mello-voter-name") ?? ""));
+  const [voterName, setVoterName] = useState("");
   const [artists, setArtists] = useState<Artist[]>([]);
   const [votes, setVotes] = useState<Vote[]>([]);
   const [leaderboard, setLeaderboard] = useState<LeaderboardRow[]>([]);
+  const [presenceEvents, setPresenceEvents] = useState<PresenceEvent[]>([]);
+  const [participants, setParticipants] = useState<Participant[]>([]);
   const [activeTab, setActiveTab] = useState<"vote" | "board">("vote");
-  const [loading, setLoading] = useState(() => (typeof window !== "undefined" ? Boolean(localStorage.getItem(roomCodeStorageKey)) : false));
+  const [loading, setLoading] = useState(false);
   const [savingVoteForArtistId, setSavingVoteForArtistId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
-  const [joinedName, setJoinedName] = useState(() => {
-    if (typeof window === "undefined") return "";
-    const savedName = localStorage.getItem("mello-voter-name") ?? "";
-    const savedParty = localStorage.getItem(roomCodeStorageKey) ?? "";
-    return savedName && savedParty ? savedName : "";
-  });
+  const [joinedName, setJoinedName] = useState("");
   const [eventInfo, setEventInfo] = useState<EventInfo | null>(null);
-  const [showRefreshToast, setShowRefreshToast] = useState(
-    () => !(typeof window !== "undefined" && localStorage.getItem(refreshToastVersion) === "done")
-  );
+  const [qualifiedByArtistId, setQualifiedByArtistId] = useState<Record<string, boolean>>({});
+  const [phase, setPhase] = useState<{ votingCompleted: boolean; scoringCompleted: boolean; winnerVoter?: string }>({ votingCompleted: false, scoringCompleted: false });
+  const [showRefreshToast, setShowRefreshToast] = useState(true);
   const [votePulseItems, setVotePulseItems] = useState<VotePulseItem[]>([]);
-  const [activeRoomCode, setActiveRoomCode] = useState(() => (typeof window === "undefined" ? "" : localStorage.getItem(roomCodeStorageKey) ?? ""));
-  const [roomCodeInput, setRoomCodeInput] = useState(() => getRoomCodeFromUrl());
+  const [activeRoomCode, setActiveRoomCode] = useState("");
+  const [roomCreator, setRoomCreator] = useState("");
+  const [joinToastItems, setJoinToastItems] = useState<{ id: string; voter: string }[]>([]);
+  const [roomCodeInput, setRoomCodeInput] = useState("");
   const [roomActionLoading, setRoomActionLoading] = useState(false);
   const [showCreateRoom, setShowCreateRoom] = useState(false);
   const [shareCopyFeedback, setShareCopyFeedback] = useState("");
   const [showJoinedNotice, setShowJoinedNotice] = useState(false);
+  const [openEmojiPickerArtistId, setOpenEmojiPickerArtistId] = useState<string | null>(null);
+  const [selectedPersonalVoter, setSelectedPersonalVoter] = useState("");
   const roomDeepLinkHandledRef = useRef(false);
 
   const [draftScoresByArtist, setDraftScoresByArtist] = useState<Record<string, { song: number; show: number }>>({});
   const voteSnapshotRef = useRef<Map<string, string>>(new Map());
+  const presenceSnapshotRef = useRef<Map<string, string>>(new Map());
+  const reactionSnapshotRef = useRef<Map<string, string>>(new Map());
   const voteSnapshotInitializedRef = useRef(false);
+  const presenceSnapshotInitializedRef = useRef(false);
+  const reactionSnapshotInitializedRef = useRef(false);
   const pulseTimersRef = useRef<number[]>([]);
   const appVersionRef = useRef<string | null>(null);
   const currentVoterNameRef = useRef("");
+  const presenceAnnouncedKeyRef = useRef("");
 
   function hueFromName(name: string) {
     let hue = 0;
@@ -162,6 +198,20 @@ export default function Home() {
     if (total >= 18) return "🔥";
     if (total <= 10) return "😬";
     return "✨";
+  }
+
+  function getToastReactionEmoji(inputEmoji: string) {
+    const variants: Record<string, string[]> = {
+      "😳": ["😳", "😬", "🤮", "😵"],
+      "👎": ["👎", "🙅", "🚫", "😒"],
+      "😂": ["😂", "🤣", "💀", "🫠"],
+      "👏": ["👏", "🙌", "🔥", "✨"],
+      "👍": ["👍", "👌", "✅", "💪"],
+      "🤩": ["🤩", "😍", "🌟", "🚀"],
+    };
+
+    const pool = variants[inputEmoji] ?? [inputEmoji || "✨"];
+    return pool[Math.floor(Math.random() * pool.length)] ?? inputEmoji;
   }
 
   const queueVotePulses = useCallback((changedVotes: Vote[], nextArtists: Artist[]) => {
@@ -234,12 +284,100 @@ export default function Home() {
     queueVotePulses(changedVotes, nextArtists);
   }, [queueVotePulses]);
 
+  const processIncomingPresenceEvents = useCallback((nextEvents: PresenceEvent[]) => {
+    const previousSnapshot = presenceSnapshotRef.current;
+    const nextSnapshot = new Map<string, string>();
+    const newEvents: PresenceEvent[] = [];
+
+    for (const event of nextEvents) {
+      const stamp = event.joinedAt ?? event.id;
+      nextSnapshot.set(event.id, stamp);
+      if (previousSnapshot.size && previousSnapshot.get(event.id) !== stamp) {
+        newEvents.push(event);
+      }
+    }
+
+    if (!presenceSnapshotInitializedRef.current) {
+      presenceSnapshotRef.current = nextSnapshot;
+      presenceSnapshotInitializedRef.current = true;
+      return;
+    }
+
+    presenceSnapshotRef.current = nextSnapshot;
+    if (!newEvents.length) return;
+
+    newEvents.sort((left, right) => Date.parse(right.joinedAt ?? "0") - Date.parse(left.joinedAt ?? "0"));
+
+    const visibleEvents = newEvents.filter((event) => event.voter.trim().toLowerCase() !== currentVoterNameRef.current);
+    if (!visibleEvents.length) return;
+
+    const items = visibleEvents.slice(0, 3).map((event) => ({ id: createClientId(), voter: event.voter }));
+    setJoinToastItems((current) => [...items, ...current].slice(0, 5));
+
+    items.forEach((item) => {
+      const timer = window.setTimeout(() => {
+        setJoinToastItems((current) => current.filter((toast) => toast.id !== item.id));
+      }, 8000);
+      pulseTimersRef.current.push(timer);
+    });
+  }, []);
+
+  const processIncomingReactionEvents = useCallback((nextEvents: ReactionEvent[], nextArtists: Artist[]) => {
+    const previousSnapshot = reactionSnapshotRef.current;
+    const nextSnapshot = new Map<string, string>();
+    const newEvents: ReactionEvent[] = [];
+
+    for (const event of nextEvents) {
+      const stamp = event.updatedAt ?? event.createdAt ?? event.id;
+      nextSnapshot.set(event.id, stamp);
+      if (previousSnapshot.size && previousSnapshot.get(event.id) !== stamp) {
+        newEvents.push(event);
+      }
+    }
+
+    if (!reactionSnapshotInitializedRef.current) {
+      reactionSnapshotRef.current = nextSnapshot;
+      reactionSnapshotInitializedRef.current = true;
+      return;
+    }
+
+    reactionSnapshotRef.current = nextSnapshot;
+    if (!newEvents.length) return;
+
+    const artistNameById = new Map(nextArtists.map((artist) => [artist.id, artist.name]));
+
+    newEvents
+      .sort((left, right) => Date.parse(right.updatedAt ?? right.createdAt ?? "0") - Date.parse(left.updatedAt ?? left.createdAt ?? "0"))
+      .slice(0, 4)
+      .forEach((event) => {
+        const item: VotePulseItem = {
+          id: createClientId(),
+          kind: "reaction",
+          voter: event.voter,
+          artistId: event.artistId,
+          artistName: artistNameById.get(event.artistId) ?? "Artist",
+          emoji: event.exact ? event.emoji : getToastReactionEmoji(event.emoji),
+        };
+
+        setVotePulseItems((current) => [item, ...current]);
+        const timer = window.setTimeout(() => {
+          setVotePulseItems((current) => current.filter((pulse) => pulse.id !== item.id));
+        }, 10000);
+        pulseTimersRef.current.push(timer);
+      });
+  }, []);
+
   const applyState = useCallback((nextState: StateResponse) => {
     setArtists(nextState.artists);
     setVotes(nextState.votes);
     setLeaderboard(nextState.leaderboard);
+    setPresenceEvents(nextState.presenceEvents ?? []);
+    setParticipants(nextState.participants ?? []);
+    if (nextState.creator) setRoomCreator(nextState.creator);
     processIncomingVotes(nextState.votes, nextState.artists);
-  }, [processIncomingVotes]);
+    processIncomingPresenceEvents(nextState.presenceEvents ?? []);
+    processIncomingReactionEvents(nextState.reactionEvents ?? [], nextState.artists);
+  }, [processIncomingPresenceEvents, processIncomingReactionEvents, processIncomingVotes]);
 
   const loadRoomState = useCallback(async (roomCode: string) => {
     const response = await fetch(`/api/state?room=${encodeURIComponent(roomCode)}`, { cache: "no-store" });
@@ -256,6 +394,46 @@ export default function Home() {
   useEffect(() => {
     currentVoterNameRef.current = voterName.trim().toLowerCase();
   }, [voterName]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const savedRoom = localStorage.getItem(roomCodeStorageKey) ?? "";
+    const savedName = localStorage.getItem("mello-voter-name") ?? "";
+    const savedTab = localStorage.getItem(activeTabStorageKey);
+
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrate client-only persisted UI state after mount
+    setVoterName(savedName);
+    setSelectedPersonalVoter(savedName);
+    if (savedTab === "vote" || savedTab === "board") {
+      setActiveTab(savedTab);
+    }
+    setActiveRoomCode(savedRoom);
+    setLoading(Boolean(savedRoom));
+    setJoinedName(savedName && savedRoom ? savedName : "");
+    setShowRefreshToast(localStorage.getItem(refreshToastVersion) !== "done");
+
+    const deepLinkedRoom = getRoomCodeFromUrl();
+    setRoomCodeInput(deepLinkedRoom || savedRoom);
+  }, []);
+
+  useEffect(() => {
+    const name = joinedName.trim();
+    const room = activeRoomCode.trim().toUpperCase();
+    if (!name || !room) return;
+
+    const presenceKey = `${room}::${name.toLowerCase()}`;
+    if (presenceAnnouncedKeyRef.current === presenceKey) return;
+    presenceAnnouncedKeyRef.current = presenceKey;
+
+    fetch("/api/presence", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ room, voter: name }),
+    }).catch(() => {
+      // best-effort broadcast only
+    });
+  }, [activeRoomCode, applyState, joinedName]);
 
   useEffect(() => {
     if (roomDeepLinkHandledRef.current) return;
@@ -367,6 +545,37 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    async function refreshQualified() {
+      const response = await fetch("/api/live-qualified", { cache: "no-store" });
+      if (response.ok) {
+        const next = (await response.json()) as { qualifiedByArtistId?: Record<string, boolean> };
+        setQualifiedByArtistId(next.qualifiedByArtistId ?? {});
+      }
+    }
+    refreshQualified();
+    const qualifiedTimer = setInterval(refreshQualified, 5000);
+
+    async function refreshPhase() {
+      const response = await fetch("/api/live-phase", { cache: "no-store" });
+      if (response.ok) {
+        const next = (await response.json()) as { votingCompleted?: boolean; scoringCompleted?: boolean; winnerVoter?: string };
+        setPhase({
+          votingCompleted: next.votingCompleted ?? false,
+          scoringCompleted: next.scoringCompleted ?? false,
+          winnerVoter: next.winnerVoter,
+        });
+      }
+    }
+    refreshPhase();
+    const phaseTimer = setInterval(refreshPhase, 5000);
+
+    return () => {
+      clearInterval(qualifiedTimer);
+      clearInterval(phaseTimer);
+    };
+  }, []);
+
+  useEffect(() => {
     if (!showJoinedNotice) return;
     const timer = window.setTimeout(() => setShowJoinedNotice(false), 3200);
     return () => window.clearTimeout(timer);
@@ -397,6 +606,135 @@ export default function Home() {
     return map;
   }, [votes, voterName]);
 
+  const personalVoterOptions = useMemo(() => {
+    const unique = [...new Set(votes.map((vote) => vote.voter.trim()).filter(Boolean))];
+    return unique.sort((left, right) => left.localeCompare(right));
+  }, [votes]);
+
+  const personalLeaderboard = useMemo(() => {
+    if (!selectedPersonalVoter) return [];
+
+    const artistsById = new Map(artists.map((artist) => [artist.id, artist] as const));
+
+    return votes
+      .filter((vote) => vote.voter.toLowerCase() === selectedPersonalVoter.toLowerCase())
+      .map((vote) => {
+        const artist = artistsById.get(vote.artistId);
+        if (!artist?.runningOrder) return null;
+        return {
+          artistId: vote.artistId,
+          label: artist.country || artist.name || vote.artistId,
+          flag: artist.flag,
+          runningOrder: artist.runningOrder,
+          total: vote.total,
+          song: vote.song,
+          show: vote.show,
+        };
+      })
+      .filter((vote): vote is NonNullable<typeof vote> => Boolean(vote))
+      .sort((left, right) => right.total - left.total || right.song - left.song || right.show - left.show);
+  }, [artists, selectedPersonalVoter, votes]);
+
+  const predictionWinners = useMemo(() => {
+    const qualifiedSet = new Set(
+      Object.entries(qualifiedByArtistId)
+        .filter(([, qualified]) => qualified)
+        .map(([id]) => id)
+    );
+    if (!qualifiedSet.size || !votes.length) return [];
+
+    const voterVotes = new Map<string, { artistId: string; total: number }[]>();
+    for (const vote of votes) {
+      const list = voterVotes.get(vote.voter) ?? [];
+      list.push({ artistId: vote.artistId, total: vote.total });
+      voterVotes.set(vote.voter, list);
+    }
+
+    const results = [...voterVotes.entries()]
+      .map(([voter, list]) => {
+        const personalTop10 = [...list].sort((left, right) => right.total - left.total).slice(0, 10);
+        const matched = personalTop10.filter((item) => qualifiedSet.has(item.artistId));
+        return {
+          voter,
+          matches: matched.length,
+          matchedTotal: matched.reduce((sum, item) => sum + item.total, 0),
+        };
+      })
+      .sort((left, right) => right.matches - left.matches || right.matchedTotal - left.matchedTotal);
+
+    return results;
+  }, [votes, qualifiedByArtistId]);
+
+  const qualificationStandings = useMemo(() => {
+    const qualifiedSet = new Set(
+      Object.entries(qualifiedByArtistId)
+        .filter(([, qualified]) => qualified)
+        .map(([id]) => id)
+    );
+    if (!qualifiedSet.size || !votes.length) return [];
+
+    const voterVotes = new Map<string, { artistId: string; total: number }[]>();
+    for (const vote of votes) {
+      const list = voterVotes.get(vote.voter) ?? [];
+      list.push({ artistId: vote.artistId, total: vote.total });
+      voterVotes.set(vote.voter, list);
+    }
+
+    const standings = [...voterVotes.entries()]
+      .map(([voter, list]) => {
+        const top10 = [...list].sort((left, right) => right.total - left.total).slice(0, 10);
+        const matches = top10.filter((item) => qualifiedSet.has(item.artistId)).length;
+        const totalScore = top10.reduce((sum, item) => sum + item.total, 0);
+        return { voter, matches, totalScore };
+      })
+      .sort((left, right) => right.matches - left.matches || right.totalScore - left.totalScore);
+
+    return standings;
+  }, [votes, qualifiedByArtistId]);
+
+  const partyMembersLabel = useMemo(() => {
+    const namesByKey = new Map<string, { name: string; lastSeenMs: number }>();
+
+    for (const event of presenceEvents) {
+      const name = event.voter.trim();
+      if (!name) continue;
+      const key = name.toLowerCase();
+      const seenMs = Date.parse(event.joinedAt ?? "0") || 0;
+      const current = namesByKey.get(key);
+      if (!current || seenMs >= current.lastSeenMs) {
+        namesByKey.set(key, { name, lastSeenMs: seenMs });
+      }
+    }
+
+    for (const participant of participants) {
+      const name = participant.voter.trim();
+      if (!name) continue;
+      const key = name.toLowerCase();
+      const seenMs = Date.parse(participant.lastSeenAt ?? "0") || 0;
+      const current = namesByKey.get(key);
+      if (!current || seenMs >= current.lastSeenMs) {
+        namesByKey.set(key, { name, lastSeenMs: seenMs });
+      }
+    }
+
+    for (const vote of votes) {
+      const name = vote.voter.trim();
+      if (!name) continue;
+      const key = name.toLowerCase();
+      const seenMs = Date.parse(vote.updatedAt ?? vote.createdAt ?? "0") || 0;
+      const current = namesByKey.get(key);
+      if (!current || seenMs >= current.lastSeenMs) {
+        namesByKey.set(key, { name, lastSeenMs: seenMs });
+      }
+    }
+
+    const names = [...namesByKey.values()]
+      .sort((left, right) => right.lastSeenMs - left.lastSeenMs || left.name.localeCompare(right.name))
+      .map((entry) => entry.name);
+
+    return names.length ? `Party: ${names.join(" · ")}` : "";
+  }, [participants, presenceEvents, votes]);
+
   const rankedVotesByArtist = useMemo(() => {
     const byArtist = new Map<string, { voter: string; song: number; show: number; total: number; updatedAt?: string }[]>();
     for (const vote of votes) {
@@ -412,26 +750,6 @@ export default function Home() {
     }
     return byArtist;
   }, [votes]);
-
-  const voteStatsByArtist = useMemo(() => {
-    const stats = new Map<string, { lowest?: Vote; highest?: Vote }>();
-
-    for (const artist of artists) {
-      const artistVotes = votes.filter((vote) => vote.artistId === artist.id);
-      if (!artistVotes.length) {
-        stats.set(artist.id, {});
-        continue;
-      }
-
-      const sortedByTotal = [...artistVotes].sort((left, right) => left.total - right.total);
-      stats.set(artist.id, {
-        lowest: sortedByTotal[0],
-        highest: sortedByTotal[sortedByTotal.length - 1],
-      });
-    }
-
-    return stats;
-  }, [artists, votes]);
 
   function getDraftScore(artistId: string) {
     const existingDraftScore = draftScoresByArtist[artistId];
@@ -509,6 +827,33 @@ export default function Home() {
     launchConfettiCannon(effectX, effectY, total);
   }
 
+  async function submitReaction(artistId: string, emoji: string, exact = false) {
+    if (!activeRoomCode) {
+      setErrorMessage("Create or join a party first.");
+      return;
+    }
+    if (!voterName.trim()) {
+      setErrorMessage("Enter your name first.");
+      return;
+    }
+
+    const response = await fetch("/api/reaction", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ room: activeRoomCode, voter: voterName.trim(), artistId, emoji, exact }),
+    });
+
+    if (!response.ok) {
+      setErrorMessage("Could not send reaction.");
+      return;
+    }
+
+    const nextState = (await response.json()) as StateResponse;
+    applyState(nextState);
+  }
+
+  const customEmojiOptions = ["🤮", "😵", "🙈", "🤣", "😭", "😤", "🥱", "😎", "🔥", "💃", "🕺", "🎉", "💯", "👑", "🫶", "🤯", "😈", "🥳", "🤠", "😇", "🧨", "⚡", "🌈", "💥", "🎯", "🛸", "🦄", "🐉", "🧠", "💅", "🫡", "😜", "🤪", "🥶", "😱", "😏", "🤌", "🫠", "🙃", "🥲", "😬", "🤷", "🫣", "💀", "☠️", "😀", "😁", "😆", "😅", "😂", "🙂", "😍", "🥰", "😘", "😋", "😛", "😝", "🤓", "😴", "😪", "🤤", "😬", "🤢", "🤧", "🥵", "🥸", "👻", "🤡", "💩", "👽", "🎃", "🤝", "👏", "🙌", "👍", "👎", "🙏", "✌️", "🤘", "🫡", "🫶", "💪", "🧡", "💜", "💙", "💚", "🖤", "💔", "❤️", "💕", "💖", "💗", "💓", "💘", "💝", "✨", "🌟", "⭐", "☀️", "🌤️", "⛅", "🌥️", "☁️", "🌦️", "🌧️", "⛈️", "🌩️", "🌨️", "❄️", "☃️", "💨", "🌬️", "🌫️", "🌁", "🌂", "☂️", "☔", "🌈", "🌞", "🌛", "🌪️", "🌊", "🌋", "🌌", "🎶", "🎧", "🎤", "🎬", "🏆", "🥇", "🚀", "🛹", "🏄", "⚽", "🏀", "🎾", "🐶", "🐱", "🦊", "🐺", "🐻", "🐼", "🐨", "🐯", "🦁", "🐮", "🐷", "🐵", "🙊", "🙉", "🙈", "🐸", "🐰", "🐹", "🐭", "🐗", "🐴", "🦄", "🐝", "🐞", "🕷️", "🦂", "🦋", "🐢", "🐍", "🦎", "🐙", "🦑", "🦐", "🦞", "🐠", "🐟", "🐡", "🦈", "🐬", "🐳", "🦭", "🦦", "🦥", "🦔", "🦘", "🦬", "🦒", "🦓", "🦍", "🦧", "🐘", "🦛", "🦏", "🐪", "🦙", "🦣", "🐓", "🐔", "🦃", "🦉", "🦅", "🕊️", "🐧", "🦜", "🦩", "🦚", "🐿️", "🌸", "🌺", "🍀", "🪩", "🧠", "🔮", "🧲", "📈", "💸", "🧾", "👗", "👚", "👕", "👔", "👖", "🧥", "🧶", "🧣", "🧤", "🧦", "👠", "👡", "👢", "👟", "🥾", "🥿", "👒", "🎩", "🧢", "👑", "👜", "👛", "🕶️", "💍", "📿", "🩱", "🩲", "🥻", "👘", "🪭", "🎭", "🕺", "💃", "🪩", "🎆", "🎇", "🧨", "🔥", "💨", "⚡", "🌈", "🎤", "🎙️", "🎚️", "🎛️", "🔊", "🎵", "🎶", "✨", "💫", "🌟", "⭐"];
+
   const everyoneHasVoted = artists.length > 0 && artists.every((artist) => votesByCurrentUserAndArtist.has(artist.id));
 
   function joinParty() {
@@ -522,6 +867,16 @@ export default function Home() {
     setShowJoinedNotice(true);
     localStorage.setItem("mello-voter-name", name);
     setActiveTab("vote");
+
+    if (activeRoomCode) {
+      fetch("/api/presence", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ room: activeRoomCode, voter: name }),
+      }).catch(() => {
+        // best-effort broadcast only
+      });
+    }
   }
 
   async function createRoom() {
@@ -530,7 +885,7 @@ export default function Home() {
     const response = await fetch("/api/room", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "create" }),
+      body: JSON.stringify({ action: "create", voter: voterName.trim() || undefined }),
     });
     setRoomActionLoading(false);
 
@@ -550,9 +905,14 @@ export default function Home() {
     setJoinedName("");
     voteSnapshotRef.current = new Map();
     voteSnapshotInitializedRef.current = false;
+    presenceSnapshotRef.current = new Map();
+    presenceSnapshotInitializedRef.current = false;
+    reactionSnapshotRef.current = new Map();
+    reactionSnapshotInitializedRef.current = false;
     setShowCreateRoom(false);
     setRoomCodeInUrl(payload.roomCode);
     localStorage.setItem(roomCodeStorageKey, payload.roomCode);
+    localStorage.setItem("mello-room-creator", voterName.trim());
     setLoading(true);
     loadRoomState(payload.roomCode)
       .catch(() => setErrorMessage("Could not load party votes."))
@@ -591,6 +951,10 @@ export default function Home() {
     setJoinedName("");
     voteSnapshotRef.current = new Map();
     voteSnapshotInitializedRef.current = false;
+    presenceSnapshotRef.current = new Map();
+    presenceSnapshotInitializedRef.current = false;
+    reactionSnapshotRef.current = new Map();
+    reactionSnapshotInitializedRef.current = false;
     setRoomCodeInUrl(payload.roomCode);
     localStorage.setItem(roomCodeStorageKey, payload.roomCode);
     setLoading(true);
@@ -610,11 +974,19 @@ export default function Home() {
     setArtists([]);
     setVotes([]);
     setLeaderboard([]);
+    setPresenceEvents([]);
+    setParticipants([]);
     setVotePulseItems([]);
+    setJoinToastItems([]);
     voteSnapshotRef.current = new Map();
     voteSnapshotInitializedRef.current = false;
+    presenceSnapshotRef.current = new Map();
+    presenceSnapshotInitializedRef.current = false;
+    reactionSnapshotRef.current = new Map();
+    reactionSnapshotInitializedRef.current = false;
     localStorage.removeItem(roomCodeStorageKey);
     localStorage.removeItem("mello-voter-name");
+    localStorage.removeItem("mello-room-creator");
     if (typeof window !== "undefined") {
       const url = new URL(window.location.href);
       url.searchParams.delete("room");
@@ -640,6 +1012,10 @@ export default function Home() {
     if (activeTab === "vote" && nextTab !== "vote") {
       localStorage.setItem(voteScrollPositionKey, String(window.scrollY));
     }
+    if (nextTab === "board") {
+      window.scrollTo(0, 0);
+    }
+    localStorage.setItem(activeTabStorageKey, nextTab);
     setActiveTab(nextTab);
   }
 
@@ -782,7 +1158,8 @@ export default function Home() {
               ) : null}
             </div>
           ) : null}
-          <p className="mt-2 text-xs text-white/60">Live sync every 5s across all phones.</p>
+
+          {activeRoomCode && partyMembersLabel ? <p className="mt-2 text-xs text-white/75">{partyMembersLabel}</p> : null}
         </header>
 
         {errorMessage ? (
@@ -809,7 +1186,18 @@ export default function Home() {
           </div>
         ) : null}
 
-        <VotePulseDock items={votePulseItems} active={activeTab === "vote"} onSelectArtist={scrollToArtistCard} />
+        {showJoinToasts && joinToastItems.length ? (
+          <div className="pointer-events-none fixed right-3 top-[6.5rem] z-[65] flex max-w-[92vw] flex-col gap-2">
+            {joinToastItems.map((toast) => (
+              <div key={toast.id} className="vote-pulse-toast rounded-2xl border border-white/20 bg-black/70 px-3 py-2 text-sm text-white shadow-xl backdrop-blur-sm">
+                <span className="mr-1" aria-hidden>👋</span>
+                <strong>{toast.voter}</strong> joined the party
+              </div>
+            ))}
+          </div>
+        ) : null}
+
+        {showVotePulseDock ? <VotePulseDock items={votePulseItems} active={activeTab === "vote"} onSelectArtist={scrollToArtistCard} /> : null}
 
         {!activeRoomCode ? (
           <div className="rounded-2xl border border-cyan-300/25 bg-black/35 p-8 text-center text-white/85">
@@ -823,6 +1211,19 @@ export default function Home() {
           <div className="rounded-2xl border border-white/20 bg-white/10 p-8 text-center text-white/80">Loading party data…</div>
         ) : activeTab === "vote" ? (
           <section>
+            {phase.votingCompleted ? (
+              <div className="mb-4 rounded-xl border border-emerald-400/30 bg-emerald-500/15 p-3">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm font-bold text-emerald-100">🗳️ Voting is complete! Check out the Results.</p>
+                  <button
+                    onClick={() => switchTab("board")}
+                    className="rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-black text-white"
+                  >
+                    Go to Results →
+                  </button>
+                </div>
+              </div>
+            ) : null}
             <MobileVoteDeck
               artists={artists}
               getDraftScore={getDraftScore}
@@ -830,6 +1231,9 @@ export default function Home() {
               getSortedVotesForArtist={(artistId) => rankedVotesByArtist.get(artistId) ?? []}
               savingVoteForArtistId={savingVoteForArtistId}
               submitVote={submitVote}
+              submitReaction={submitReaction}
+              votingCompleted={phase.votingCompleted}
+              onGoToResults={() => switchTab("board")}
             />
 
             <div className="hidden gap-4 md:grid md:grid-cols-2 xl:grid-cols-3">
@@ -852,7 +1256,10 @@ export default function Home() {
 
                     <div className="p-4">
                       <div className="mb-2 flex items-center justify-between gap-3">
-                        <h2 className="text-xl font-extrabold">{artist.name}</h2>
+                        <h2 className="flex flex-wrap items-center gap-x-2 text-xl font-extrabold">
+                          {artist.country ? <span>{artist.country} •</span> : null}
+                          <span>{artist.name}</span>
+                        </h2>
                         {hasVoted ? (
                           <span className="rounded-full bg-emerald-300 px-2 py-1 text-sm font-bold text-black">Voted</span>
                         ) : (
@@ -862,33 +1269,99 @@ export default function Home() {
 
                       {artist.song ? <p className="mb-3 text-base from-fuchsia-300">♪ {artist.song}</p> : null}
 
-                      <Slider
-                        label="Song"
-                        value={score.song}
-                        min={0}
-                        max={12}
-                        onChange={(value) => updateDraftScore(artist.id, "song", value)}
-                        valueDisplay={<span className="text-cyan-300">{score.song}</span>}
-                      />
+                      {phase.votingCompleted ? (
+                        <button
+                          onClick={() => switchTab("board")}
+                          className="mt-4 w-full rounded-xl bg-emerald-500 px-4 py-2 text-base font-black text-white shadow-lg"
+                        >
+                          Go to Results →
+                        </button>
+                      ) : (
+                        <>
+                          <Slider
+                            label="Song"
+                            value={score.song}
+                            min={0}
+                            max={12}
+                            onChange={(value) => updateDraftScore(artist.id, "song", value)}
+                            valueDisplay={<span className="text-cyan-300">{score.song}</span>}
+                          />
 
-                      <Slider
-                        label="Show"
-                        value={score.show}
-                        min={0}
-                        max={12}
-                        onChange={(value) => updateDraftScore(artist.id, "show", value)}
-                        valueDisplay={<span className="text-amber-300">{score.show}</span>}
-                      />
+                          <Slider
+                            label="Show"
+                            value={score.show}
+                            min={0}
+                            max={12}
+                            onChange={(value) => updateDraftScore(artist.id, "show", value)}
+                            valueDisplay={<span className="text-amber-300">{score.show}</span>}
+                          />
 
-                      <div className="mb-4 text-base text-white/85">Total: <span className="text-2xl font-black text-cyan-300">{total}</span></div>
+                          <div className="mb-4 text-base text-white/85">Total: <span className="text-2xl font-black text-cyan-300">{total}</span></div>
 
-                      <button
-                        onClick={(event) => submitVote(artist.id, event)}
-                        disabled={savingVoteForArtistId === artist.id}
-                        className="w-full rounded-xl bg-gradient-to-r from-fuchsia-500 via-violet-500 to-blue-500 px-4 py-2 text-base font-black text-white shadow-lg shadow-fuchsia-900/25 disabled:opacity-50"
-                      >
-                        {savingVoteForArtistId === artist.id ? "Saving…" : hasVoted ? "Update vote" : "Submit vote"}
-                      </button>
+                          <button
+                            onClick={(event) => submitVote(artist.id, event)}
+                            disabled={savingVoteForArtistId === artist.id}
+                            className="w-full rounded-xl bg-gradient-to-r from-fuchsia-500 via-violet-500 to-blue-500 px-4 py-2 text-base font-black text-white shadow-lg shadow-fuchsia-900/25 disabled:opacity-50"
+                          >
+                            {savingVoteForArtistId === artist.id ? "Saving…" : hasVoted ? "Update vote" : "Submit vote"}
+                          </button>
+
+                          <div className="mt-2 grid grid-cols-6 gap-1.5">
+                            {[
+                              { emoji: "😳", label: "Cringe" },
+                              { emoji: "👎", label: "Thumbs down" },
+                              { emoji: "😂", label: "Laughing" },
+                              { emoji: "👏", label: "Clapping" },
+                              { emoji: "👍", label: "Thumbs up" },
+                            ].map((option) => (
+                              <button
+                                key={option.emoji}
+                                type="button"
+                                onClick={(event) => {
+                                  event.preventDefault();
+                                  event.stopPropagation();
+                                  void submitReaction(artist.id, option.emoji);
+                                }}
+                                className="inline-flex items-center justify-center rounded-xl border border-white/15 bg-white/5 px-2 py-2 text-lg"
+                                aria-label={option.label}
+                                title={option.label}
+                              >
+                                {option.emoji}
+                              </button>
+                            ))}
+                            <button
+                              type="button"
+                              onClick={() => setOpenEmojiPickerArtistId((current) => (current === artist.id ? null : artist.id))}
+                              className="inline-flex items-center justify-center rounded-xl border border-white/15 bg-white/5 px-2 py-2 text-lg"
+                              aria-label="Custom emoji"
+                              title="Custom emoji"
+                            >
+                              ➕
+                            </button>
+                          </div>
+
+                          {openEmojiPickerArtistId === artist.id ? (
+                            <div className="mt-2 max-h-36 overflow-y-auto rounded-xl border border-white/50 bg-white/65 p-2 backdrop-blur-sm [scrollbar-gutter:stable_both-edges]">
+                              <div className="grid grid-cols-10 gap-1.5">
+                                {customEmojiOptions.map((emoji) => (
+                                  <button
+                                    key={`${artist.id}-${emoji}`}
+                                    type="button"
+                                    onClick={() => {
+                                      void submitReaction(artist.id, emoji, true);
+                                      setOpenEmojiPickerArtistId(null);
+                                    }}
+                                    className="inline-flex items-center justify-center rounded-lg border border-white/30 bg-white/20 px-1 py-1.5 text-3xl leading-none"
+                                    aria-label={`React with ${emoji}`}
+                                  >
+                                    {emoji}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          ) : null}
+                        </>
+                      )}
                     </div>
                   </article>
                 );
@@ -904,145 +1377,178 @@ export default function Home() {
                     : "bg-white/15 text-white"
                 }`}
               >
-                {everyoneHasVoted ? "See results 🏆" : "Leaderboard"}
+                {everyoneHasVoted ? "See results 🏆" : "Results"}
               </button>
             </div>
           </section>
         ) : (
-          <section className="rounded-2xl border border-white/20 bg-black/40 p-3 shadow-xl backdrop-blur md:p-4">
-            <div className="mb-3 flex items-end justify-between gap-2">
-              <h2 className="text-2xl font-black uppercase tracking-wide md:text-3xl">Leaderboard</h2>
-              <p className="text-sm font-semibold uppercase tracking-wider text-white/65">{leaderboard.length} artists</p>
-            </div>
-
-            <div className="space-y-2 md:hidden">
-              {leaderboard.map((row, index) => {
-                const yourVote = votesByCurrentUserAndArtist.get(row.artistId);
-                const stats = voteStatsByArtist.get(row.artistId);
-                return (
-                  <div key={row.artistId} className="rounded-xl border border-white/15 bg-black/35 px-3 py-2.5">
-                    <div className="grid grid-cols-[2rem_1fr_auto] items-center gap-2">
-                      <span className="text-right text-lg font-black tabular-nums text-white/85">{index + 1}</span>
-                      <div className="min-w-0">
-                        <p className="truncate text-base font-bold text-white">{row.artistName}</p>
-                        {row.songTitle ? <p className="truncate text-sm text-white/65">♪ {row.songTitle}</p> : null}
-                      </div>
-                      <div className="text-right">
-                        <p className="text-xs font-semibold uppercase tracking-wider text-white/60">Total</p>
-                        <p className="text-lg font-black tabular-nums text-white">{row.totalAverage.toFixed(1)}</p>
-                      </div>
-                    </div>
-
-                    <div className="mt-2 rounded-md border border-white/10 bg-black/25 px-2 py-1.5">
-                      <div className="grid grid-cols-[3rem_3rem_3rem_1fr_3.8rem] gap-1 text-xs font-semibold uppercase tracking-wide text-white/60">
-                        <span className="text-right">Votes</span>
-                        <span className="text-right">Song</span>
-                        <span className="text-right">Show</span>
-                        <span className="text-right">High/Low</span>
-                        <span className="text-right">You</span>
-                      </div>
-                      <div className="mt-0.5 grid grid-cols-[3rem_3rem_3rem_1fr_3.8rem] gap-1 text-sm">
-                        <span className="text-right font-bold tabular-nums text-white/90">{row.voteCount}</span>
-                        <span className="text-right font-bold tabular-nums text-white/90">{row.songAverage.toFixed(1)}</span>
-                        <span className="text-right font-bold tabular-nums text-white/90">{row.showAverage.toFixed(1)}</span>
-                        <span className="text-right text-xs leading-tight">
-                          <span className="block truncate font-semibold tabular-nums text-emerald-200/95">
-                            H {stats?.highest ? `${stats.highest.voter.slice(0, 8)} ${stats.highest.total}` : "—"}
-                          </span>
-                          <span className="block truncate font-semibold tabular-nums text-rose-200/95">
-                            L {stats?.lowest ? `${stats.lowest.voter.slice(0, 8)} ${stats.lowest.total}` : "—"}
-                          </span>
+          <div className="flex flex-col gap-4">
+            {phase.scoringCompleted && predictionWinners.length ? (
+              <div className="rounded-xl border border-yellow-400/40 bg-yellow-500/20 p-4">
+                <h3 className="mb-2 text-sm font-black uppercase tracking-wide text-yellow-100">🏆 Prediction Winners</h3>
+                {(() => {
+                  let rank = 1;
+                  let displayed = 0;
+                  const nodes = [];
+                  for (let index = 0; index < predictionWinners.length; index++) {
+                    const winner = predictionWinners[index];
+                    if (index > 0 && winner.matches !== predictionWinners[index - 1]?.matches) {
+                      rank = displayed + 1;
+                    }
+                    if (rank > 3) break;
+                    displayed++;
+                    const isFirst = rank === 1;
+                    const isSecond = rank === 2;
+                    const isThird = rank === 3;
+                    nodes.push(
+                      <div key={winner.voter} className={`flex items-center gap-3 ${index > 0 ? "mt-2 border-t border-white/10 pt-2" : ""}`}>
+                        <span className="text-2xl">
+                          {isFirst ? "👑" : isSecond ? "🥈" : isThird ? "🥉" : `#${rank}`}
                         </span>
-                        <span className="text-right font-bold tabular-nums text-cyan-200">{yourVote ? `${yourVote.total}/24` : "—"}</span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="hidden overflow-x-auto rounded-xl border border-white/15 bg-black/35 md:block">
-              <div className="min-w-[840px]">
-                <div className="grid grid-cols-[2.5rem_1fr_4rem_4rem_4rem_4rem_6.75rem_6.75rem_5rem] gap-2 border-b border-white/15 bg-black/45 px-3 py-2 text-xs font-bold uppercase tracking-wider text-white/70">
-                  <span className="text-right">#</span>
-                  <span>Artist</span>
-                  <span className="text-right">Votes</span>
-                  <span className="text-right">Song</span>
-                  <span className="text-right">Show</span>
-                  <span className="text-right">Total</span>
-                  <span className="text-right">Lowest</span>
-                  <span className="text-right">Highest</span>
-                  <span className="text-right">You</span>
-                </div>
-
-                <div className="divide-y divide-white/10">
-                  {leaderboard.map((row, index) => {
-                    const yourVote = votesByCurrentUserAndArtist.get(row.artistId);
-                    const stats = voteStatsByArtist.get(row.artistId);
-                    const lowestLabel = stats?.lowest ? `${stats.lowest.voter.slice(0, 8)} ${stats.lowest.total}` : "—";
-                    const highestLabel = stats?.highest ? `${stats.highest.voter.slice(0, 8)} ${stats.highest.total}` : "—";
-
-                    return (
-                      <div key={row.artistId} className="grid grid-cols-[2.5rem_1fr_4rem_4rem_4rem_4rem_6.75rem_6.75rem_5rem] items-center gap-2 px-3 py-2 text-base">
-                        <span className="text-right font-black tabular-nums text-white/85">{index + 1}</span>
-                        <div className="min-w-0">
-                          <p className="truncate font-bold text-white">{row.artistName}</p>
-                          {row.songTitle ? <p className="truncate text-sm text-white/65">♪ {row.songTitle}</p> : null}
+                        <div className="min-w-0 flex-1">
+                          <p className="text-base font-black text-white">{winner.voter}</p>
+                          <p className="text-xs text-yellow-100/80">{winner.matches}/10 qualified</p>
                         </div>
-                        <span className="text-right font-semibold tabular-nums text-white/80">{row.voteCount}</span>
-                        <span className="text-right font-semibold tabular-nums text-white/85">{row.songAverage.toFixed(1)}</span>
-                        <span className="text-right font-semibold tabular-nums text-white/85">{row.showAverage.toFixed(1)}</span>
-                        <span className="text-right font-black tabular-nums text-white">{row.totalAverage.toFixed(1)}</span>
-                        <span className="text-right text-sm font-semibold tabular-nums text-rose-200/95">{lowestLabel}</span>
-                        <span className="text-right text-sm font-semibold tabular-nums text-emerald-200/95">{highestLabel}</span>
-                        <span className="text-right font-bold tabular-nums text-cyan-200">{yourVote ? `${yourVote.total}/24` : "—"}</span>
+                      </div>
+                    );
+                  }
+                  return nodes;
+                })()}
+              </div>
+            ) : null}
+
+            {phase.votingCompleted && qualificationStandings.length ? (
+              <div className="rounded-xl border border-yellow-400/30 bg-yellow-500/15 p-3">
+                <h3 className="mb-2 text-sm font-black uppercase tracking-wide text-yellow-100">🎯 Qualifier Predictions</h3>
+                <div className="grid gap-1.5 md:grid-cols-2">
+                  {qualificationStandings.map((row, index) => (
+                    <div key={row.voter} className="grid grid-cols-[auto_1fr_auto] items-center gap-2 rounded-lg bg-black/25 px-2 py-1.5">
+                      <span className="text-sm font-black tabular-nums text-yellow-300">#{index + 1}</span>
+                      <span className="truncate text-sm font-bold text-white">{row.voter}</span>
+                      <span className="text-sm font-black tabular-nums text-yellow-100">{row.matches}/10</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
+            <div className="rounded-xl border border-white/15 bg-black/35 p-3">
+              <div className="mb-3 flex items-end justify-between gap-2">
+                <h2 className="text-xl font-black uppercase tracking-wide text-white">Results</h2>
+                <select
+                  value={selectedPersonalVoter}
+                  onChange={(event) => setSelectedPersonalVoter(event.target.value)}
+                  className="w-auto rounded-lg border border-white/30 bg-black/40 px-2 py-1 text-sm text-white"
+                >
+                  <option value="">Entire party</option>
+                  {personalVoterOptions.map((name) => (
+                    <option key={name} value={name}>
+                      {name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {selectedPersonalVoter ? (
+                personalLeaderboard.length ? (
+                  <div className="grid gap-1.5 md:grid-cols-2">
+                    {personalLeaderboard.slice(0, 10).map((vote, index) => (
+                      <div key={vote.artistId} className="grid grid-cols-[1.5rem_1fr_auto_auto] items-center gap-2 rounded-lg bg-white/5 px-2 py-1.5">
+                        <span className="text-sm font-black tabular-nums text-white/60">{index + 1}.</span>
+                        <span className="truncate text-sm font-bold text-white">{vote.label}{vote.flag ? ` ${vote.flag}` : ""} <span className="text-xs font-semibold text-white/50">#{vote.runningOrder ?? "—"}</span></span>
+                        {qualifiedByArtistId[vote.artistId] ? (
+                          <span className="rounded-md bg-emerald-500/20 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-300">Qualified</span>
+                        ) : <span />}
+                        <span className="text-sm font-black tabular-nums text-cyan-200">{vote.total}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-white/70">No votes yet for this person.</p>
+                )
+              ) : (
+                <div className="grid gap-1.5 md:grid-cols-2">
+                  {leaderboard.map((row, index) => {
+                    const runningOrder = artists.find((artist) => artist.id === row.artistId)?.runningOrder ?? index + 1;
+                    return (
+                      <div key={row.artistId} className="grid grid-cols-[1.5rem_1fr_auto_auto] items-center gap-2 rounded-lg bg-white/5 px-2 py-1.5">
+                        <span className="text-sm font-black tabular-nums text-white/60">{index + 1}.</span>
+                        <span className="truncate text-sm font-bold text-white">{row.country || row.artistName}{row.flag ? ` ${row.flag}` : ""} <span className="text-xs font-semibold text-white/50">#{runningOrder}</span></span>
+                        {qualifiedByArtistId[row.artistId] ? (
+                          <span className="rounded-md bg-emerald-500/20 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-300">Qualified</span>
+                        ) : <span />}
+                        <span className="text-sm font-black tabular-nums text-cyan-200">{row.totalAverage.toFixed(1)}</span>
                       </div>
                     );
                   })}
                 </div>
-              </div>
+              )}
             </div>
-            <div className="mt-4 text-center">
-              <button onClick={() => refreshState().catch(() => setErrorMessage("Refresh failed"))} className="text-sm text-white/50 underline hover:text-white/80">
-                Refresh now
-              </button>
-            </div>
-          </section>
+          </div>
         )}
       </div>
 
       {activeRoomCode && joinedName ? (
-        <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-white/15 bg-black/45 p-2 backdrop-blur-md md:hidden" aria-label="Footer navigation">
-          <div className="mx-auto grid max-w-md grid-cols-3 gap-2">
-            <button
-              onClick={() => switchTab("vote")}
-              role="tab"
-              aria-selected={activeTab === "vote"}
-              className={`rounded-xl px-3 py-2 text-sm font-bold transition ${
-                activeTab === "vote" ? "border border-white/35 bg-white/20 text-white" : "bg-white/10 text-white/85"
-              }`}
-            >
-              Voting
-            </button>
-            <button
-              onClick={() => switchTab("board")}
-              role="tab"
-              aria-selected={activeTab === "board"}
-              className={`rounded-xl px-3 py-2 text-sm font-bold transition ${
-                activeTab === "board" ? "border border-white/35 bg-white/20 text-white" : "bg-white/10 text-white/85"
-              }`}
-            >
-              Leaderboard
-            </button>
-            <Link
-              href="/live-results"
-              role="tab"
-              className="rounded-xl bg-white/10 px-3 py-2 text-center text-sm font-bold text-white/85 transition hover:bg-white/20"
-            >
-              Live Results
-            </Link>
-          </div>
-        </nav>
+        (roomCreator && voterName.trim().toLowerCase() === roomCreator.trim().toLowerCase()) || (!roomCreator && voterName.trim()) ? (
+          <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-white/15 bg-black/45 p-2 backdrop-blur-md md:hidden" aria-label="Footer navigation">
+            <div className="mx-auto grid w-full grid-cols-3 gap-2">
+              <button
+                onClick={() => switchTab("vote")}
+                role="tab"
+                aria-selected={activeTab === "vote"}
+                className={`rounded-xl px-2 py-2 text-xs font-bold transition sm:px-3 sm:text-sm ${
+                  activeTab === "vote" ? "border border-white/35 bg-white/20 text-white" : "bg-white/10 text-white/85"
+                }`}
+              >
+                Voting
+              </button>
+              <button
+                onClick={() => switchTab("board")}
+                role="tab"
+                aria-selected={activeTab === "board"}
+                className={`rounded-xl px-2 py-2 text-xs font-bold transition sm:px-3 sm:text-sm ${
+                  activeTab === "board" ? "border border-white/35 bg-white/20 text-white" : "bg-white/10 text-white/85"
+                }`}
+              >
+                <span className="sm:hidden">Results</span>
+                <span className="hidden sm:inline">Results</span>
+              </button>
+              <Link
+                href="/live-results"
+                role="tab"
+                className="rounded-xl bg-white/10 px-2 py-2 text-center text-xs font-bold text-white/85 transition hover:bg-white/20 sm:px-3 sm:text-sm"
+              >
+                <span className="sm:hidden">Admin</span>
+                <span className="hidden sm:inline">Admin</span>
+              </Link>
+            </div>
+          </nav>
+        ) : (
+          <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-white/15 bg-black/45 p-2 backdrop-blur-md md:hidden" aria-label="Footer navigation">
+            <div className="mx-auto grid w-full grid-cols-2 gap-2">
+              <button
+                onClick={() => switchTab("vote")}
+                role="tab"
+                aria-selected={activeTab === "vote"}
+                className={`rounded-xl px-2 py-2 text-xs font-bold transition sm:px-3 sm:text-sm ${
+                  activeTab === "vote" ? "border border-white/35 bg-white/20 text-white" : "bg-white/10 text-white/85"
+                }`}
+              >
+                Voting
+              </button>
+              <button
+                onClick={() => switchTab("board")}
+                role="tab"
+                aria-selected={activeTab === "board"}
+                className={`rounded-xl px-2 py-2 text-xs font-bold transition sm:px-3 sm:text-sm ${
+                  activeTab === "board" ? "border border-white/35 bg-white/20 text-white" : "bg-white/10 text-white/85"
+                }`}
+              >
+                <span className="sm:hidden">Results</span>
+                <span className="hidden sm:inline">Results</span>
+              </button>
+            </div>
+          </nav>
+        )
       ) : null}
     </main>
   );

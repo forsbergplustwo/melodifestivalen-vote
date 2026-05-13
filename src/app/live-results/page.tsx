@@ -17,13 +17,25 @@ type LiveFeedResponse = {
   fetchedAt: string;
   activeArtist: LiveStanding | null;
   standings: LiveStanding[];
+  usesPoints?: boolean;
 };
 
-type ArtistState = { id: string; name: string; song?: string; imageUrl?: string };
+type ArtistState = { id: string; name: string; song?: string; country?: string; flag?: string; imageUrl?: string };
 
-type StateResponse = { artists: ArtistState[] };
 type LiveHistoryResponse = { frames: LiveFeedResponse[] };
-type EventResponse = { active?: { name?: string; country?: string } | null };
+type EventResponse = { active?: { name?: string; country?: string; activeSubEvent?: string; artists?: ArtistState[] } | null };
+
+type LiveQualifiedResponse = {
+  ownerClientId: string | null;
+  canEdit: boolean;
+  qualifiedByArtistId: Record<string, boolean>;
+};
+
+type PhaseState = {
+  votingCompleted: boolean;
+  scoringCompleted: boolean;
+  winnerVoter?: string;
+};
 
 function normalize(value: string) {
   return value
@@ -31,6 +43,31 @@ function normalize(value: string) {
     .replace(/\*/g, "")
     .replace(/[^a-z0-9]+/g, " ")
     .trim();
+}
+
+function createClientId() {
+  const generated = globalThis.crypto?.randomUUID?.();
+  if (generated) return generated;
+  return `live-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function getLiveClientId() {
+  if (typeof window === "undefined") return "";
+  const key = "mello-live-client-id";
+  const existing = localStorage.getItem(key);
+  if (existing) return existing;
+  const next = createClientId();
+  localStorage.setItem(key, next);
+  return next;
+}
+
+function isRoomCreator(): boolean {
+  if (typeof window === "undefined") return false;
+  const creator = localStorage.getItem("mello-room-creator") ?? "";
+  const voter = localStorage.getItem("mello-voter-name") ?? "";
+  if (creator && voter && creator.trim().toLowerCase() === voter.trim().toLowerCase()) return true;
+  if (!creator && voter.trim()) return true;
+  return false;
 }
 
 const officialEurovisionGradient = "radial-gradient(120% 150% at 90% -3%, #2200ff, #000c54 22.49%, #010a41 33.26%, #010a41 64.14%, #4c0a54 85.82%, #ff0178)";
@@ -42,6 +79,11 @@ export default function LiveResultsPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [eventName, setEventName] = useState("Live Results");
+  const [isSemiFinal, setIsSemiFinal] = useState(false);
+  const [eventInfo, setEventInfo] = useState<{ country?: string; name?: string } | null>(null);
+  const [qualifiedByArtistId, setQualifiedByArtistId] = useState<Record<string, boolean>>({});
+  const [canEditQualified, setCanEditQualified] = useState(false);
+  const [phase, setPhase] = useState<PhaseState>({ votingCompleted: false, scoringCompleted: false });
   const [nowTimestamp, setNowTimestamp] = useState(() => Date.now());
   const [replayFrames, setReplayFrames] = useState<LiveFeedResponse[]>([]);
   const [replayIndex, setReplayIndex] = useState<number | null>(null);
@@ -58,6 +100,19 @@ export default function LiveResultsPage() {
     }
     const next = (await response.json()) as LiveFeedResponse;
     setData(next);
+
+    const qualifiedResponse = await fetch(`/api/live-qualified?clientId=${encodeURIComponent(getLiveClientId())}`, { cache: "no-store" });
+    if (qualifiedResponse.ok) {
+      const qualifiedState = (await qualifiedResponse.json()) as LiveQualifiedResponse;
+      setQualifiedByArtistId(qualifiedState.qualifiedByArtistId ?? {});
+      setCanEditQualified(Boolean(qualifiedState.canEdit));
+    }
+
+    const phaseResponse = await fetch("/api/live-phase", { cache: "no-store" });
+    if (phaseResponse.ok) {
+      const nextPhase = (await phaseResponse.json()) as PhaseState;
+      setPhase(nextPhase);
+    }
   }
 
   function stopReplay() {
@@ -105,23 +160,38 @@ export default function LiveResultsPage() {
     fetch("/api/event", { cache: "no-store" })
       .then((r) => r.json())
       .then((response: EventResponse) => {
-        if (response.active?.name) setEventName(`${response.active.country} ${response.active.name} Live Results`);
+        if (response.active?.name) {
+          setEventName(`${response.active.country} ${response.active.name} Live Results`);
+          setEventInfo(response.active);
+        }
+        setIsSemiFinal(Boolean(response.active?.activeSubEvent && /semi/i.test(response.active.activeSubEvent)));
+        if (response.active?.artists) {
+          setArtists(response.active.artists ?? []);
+        }
       })
       .catch(() => {});
 
-    fetch("/api/state", { cache: "no-store" })
-      .then((response) => response.json())
-      .then((state: StateResponse) => setArtists(state.artists ?? []))
-      .catch(() => {
-        // no-op
-      });
+    Promise.all([
+      fetch("/api/live-feed", { cache: "no-store" }),
+      fetch(`/api/live-qualified?clientId=${encodeURIComponent(getLiveClientId())}`, { cache: "no-store" }),
+    ])
+      .then(async ([feedResponse, qualifiedResponse]) => {
+        if (!feedResponse.ok) throw new Error("Live feed unavailable");
+        const nextFeed = (await feedResponse.json()) as LiveFeedResponse;
+        setData(nextFeed);
 
-    fetch("/api/live-feed", { cache: "no-store" })
-      .then((response) => {
-        if (!response.ok) throw new Error("Live feed unavailable");
-        return response.json() as Promise<LiveFeedResponse>;
+        if (qualifiedResponse.ok) {
+          const qualifiedState = (await qualifiedResponse.json()) as LiveQualifiedResponse;
+          setQualifiedByArtistId(qualifiedState.qualifiedByArtistId ?? {});
+          setCanEditQualified(Boolean(qualifiedState.canEdit));
+        }
+
+        const phaseResponse = await fetch("/api/live-phase", { cache: "no-store" });
+        if (phaseResponse.ok) {
+          const nextPhase = (await phaseResponse.json()) as PhaseState;
+          setPhase(nextPhase);
+        }
       })
-      .then((next) => setData(next))
       .catch(() => setError("Could not load live results feed."))
       .finally(() => setLoading(false));
 
@@ -146,6 +216,14 @@ export default function LiveResultsPage() {
     const map = new Map<string, ArtistState>();
     for (const artist of artists) {
       map.set(normalize(artist.name), artist);
+    }
+    return map;
+  }, [artists]);
+
+  const artistById = useMemo(() => {
+    const map = new Map<string, ArtistState>();
+    for (const artist of artists) {
+      map.set(artist.id, artist);
     }
     return map;
   }, [artists]);
@@ -192,6 +270,25 @@ export default function LiveResultsPage() {
     }
   }, [displayedData]);
 
+  async function toggleQualified(artistId: string) {
+    const nextQualified = !qualifiedByArtistId[artistId];
+    const response = await fetch("/api/live-qualified", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ clientId: getLiveClientId(), artistId, qualified: nextQualified }),
+    });
+
+    if (!response.ok) {
+      const payload = (await response.json().catch(() => ({}))) as { error?: string };
+      setError(payload.error ?? "Could not update qualification.");
+      return;
+    }
+
+    const next = (await response.json()) as LiveQualifiedResponse;
+    setQualifiedByArtistId(next.qualifiedByArtistId ?? {});
+    setCanEditQualified(Boolean(next.canEdit));
+  }
+
   const active = displayedData?.activeArtist ?? null;
   const activeLocal = active ? artistByNormalizedName.get(normalize(active.artist)) : undefined;
   const activePlace = active
@@ -208,45 +305,58 @@ export default function LiveResultsPage() {
         backgroundPosition: "center",
       }}
     >
-      <div className="mx-auto w-full max-w-6xl px-4 py-6 md:px-8">
-        <header className="mb-3 rounded-xl border border-white/15 bg-black/35 px-4 py-3 backdrop-blur">
-          <div className="mb-2 max-w-[260px]">
+      <div className="mx-auto w-full max-w-6xl px-4 py-6 pb-24 md:px-8 md:py-10 md:pb-10">
+        <div className="z-40 mb-2 flex items-center justify-between gap-2">
+          <div className="w-fit rounded-full border border-fuchsia-300/30 bg-black/55 px-3 py-1 shadow-lg backdrop-blur">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={officialEurovisionLogo} alt="Eurovision Song Contest official logo" className="w-full object-contain" />
+            <img src={officialEurovisionLogo} alt="Eurovision Song Contest official logo" className="h-5 w-auto object-contain" />
           </div>
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="min-w-0">
-              <h1 className="text-xl font-black md:text-2xl">{eventName}</h1>
-              <p className="text-xs text-white/60">
-                {displayedData ? `Updated ${new Date(displayedData.fetchedAt).toLocaleTimeString()}` : "Auto-updating every 3s"}
-                {replayIndex !== null ? " · Replay mode" : ""}
-              </p>
-              {error ? <p className="text-xs text-rose-300">{error}</p> : null}
-            </div>
-            <div className="flex gap-2">
-              <button onClick={() => startReplay().catch((e) => setError(e instanceof Error ? e.message : String(e)))} className="rounded-xl bg-yellow-300 px-5 py-2.5 text-sm font-black text-black shadow-lg">
-                ▶ Replay Results
-              </button>
-              {replayIndex !== null ? (
-                <button onClick={stopReplay} className="rounded-xl bg-white/15 px-4 py-2.5 text-sm font-semibold text-white">
-                  Stop
+        </div>
+
+        <header className="mb-3 rounded-xl border border-white/15 bg-black/35 p-3 shadow-xl backdrop-blur">
+          <p className="mb-1 hidden rounded-full bg-yellow-300 px-2 py-0.5 text-xs font-bold tracking-wider text-black sm:inline-block">
+            {eventInfo ? `${eventInfo.country} ${eventInfo.name?.toUpperCase() ?? ""}` : "LOADING EVENT..."}
+          </p>
+          <h1 className="text-lg font-black uppercase tracking-wide sm:text-xl md:text-3xl">{eventName}</h1>
+          <p className="mt-2 hidden max-w-3xl text-sm text-white/85 md:block md:text-base">
+            {isSemiFinal ? "Semi-final mode — no live points yet. Toggle qualifiers manually." : "Live results with real-time points from EurovisionWorld."}
+          </p>
+          <div className="mt-3 flex flex-wrap items-center gap-3">
+            <p className="text-xs text-white/60">
+              {displayedData ? `Updated ${new Date(displayedData.fetchedAt).toLocaleTimeString()}` : "Auto-updating every 3s"}
+              {replayIndex !== null ? " · Replay mode" : ""}
+            </p>
+            {error ? <p className="text-xs text-rose-300">{error}</p> : null}
+            {isRoomCreator() ? (
+              <div className="ml-auto flex gap-2">
+                <button
+                  onClick={() => {
+                    void fetch("/api/live-phase", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ votingCompleted: !phase.votingCompleted }),
+                    }).then((r) => r.json()).then((next) => setPhase(next as PhaseState));
+                  }}
+                  className={`rounded-xl px-3 py-1.5 text-xs font-bold ${phase.votingCompleted ? "bg-emerald-500 text-white" : "bg-white/15 text-white"}`}
+                >
+                  {phase.votingCompleted ? "✓ Voting done" : "Mark voting done"}
                 </button>
-              ) : null}
-            </div>
+                <button
+                  onClick={() => {
+                    void fetch("/api/live-phase", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ scoringCompleted: !phase.scoringCompleted }),
+                    }).then((r) => r.json()).then((next) => setPhase(next as PhaseState));
+                  }}
+                  className={`rounded-xl px-3 py-1.5 text-xs font-bold ${phase.scoringCompleted ? "bg-yellow-400 text-black" : "bg-white/15 text-white"}`}
+                >
+                  {phase.scoringCompleted ? "✓ Scoring done" : "Mark scoring done"}
+                </button>
+              </div>
+            ) : null}
           </div>
         </header>
-
-        <nav className="mb-4 flex gap-1 rounded-xl border border-white/10 bg-black/35 p-1 backdrop-blur" aria-label="Top navigation">
-          <Link href="/" className="flex-1 rounded-lg px-3 py-2 text-center text-sm font-bold text-white/70 transition hover:bg-white/10 hover:text-white">
-            🗳️ Voting
-          </Link>
-          <Link href="/" className="flex-1 rounded-lg px-3 py-2 text-center text-sm font-bold text-white/70 transition hover:bg-white/10 hover:text-white">
-            🏆 Leaderboard
-          </Link>
-          <button className="flex-1 rounded-lg bg-gradient-to-r from-rose-400 to-red-500 px-3 py-2 text-sm font-bold text-white">
-            📺 Live results
-          </button>
-        </nav>
 
         {loading ? (
           <div className="flex items-center justify-center py-12">
@@ -254,7 +364,7 @@ export default function LiveResultsPage() {
           </div>
         ) : null}
 
-        {!loading && active ? (
+        {!loading && !isSemiFinal && active ? (
           <section className="mb-5 overflow-hidden rounded-2xl border border-red-400/40 bg-black/45 shadow-2xl">
             <div className="grid items-stretch md:grid-cols-[220px_1fr]">
               <div className="h-52 bg-black/40 md:h-full">
@@ -293,35 +403,39 @@ export default function LiveResultsPage() {
         ) : null}
 
         <section className="rounded-2xl border border-white/20 bg-black/45 p-3 md:p-4">
-          <h3 className="mb-3 text-lg font-black">Compact scoreboard</h3>
-          <div className="max-h-[55vh] space-y-2 overflow-y-auto pr-1">
+          <h3 className="mb-3 text-lg font-black">{isSemiFinal ? "Qualification board" : "Compact scoreboard"}</h3>
+          <div className="grid gap-1.5 md:grid-cols-2">
             {displayedData?.standings?.map((row, index) => {
               const changedAt = lastChangedAtByArtistId[row.artistId];
               const justChanged = changedAt ? nowTimestamp - changedAt < 6500 : false;
               const rankChange = rankChangeByArtistId[row.artistId];
               const rankChangedRecently = rankChange ? nowTimestamp - rankChange.at < 6500 : false;
+              const artist = artistById.get(row.artistId);
 
               return (
-                <div key={row.artistId} className={`grid grid-cols-[72px_1fr_auto_auto] items-center gap-2 rounded-lg px-3 py-2 ${justChanged ? "bg-red-500/20 ring-1 ring-red-300/40" : "bg-white/10"}`}>
-                  <div className={`text-center text-sm font-black ${rankChangedRecently ? (rankChange?.direction === "up" ? "rank-pop-up" : "rank-pop-down") : ""}`}>
-                    #{index + 1}
+                <div key={row.artistId} className={`grid grid-cols-[1.5rem_1fr_auto_auto] items-center gap-2 rounded-lg px-2 py-1.5 ${justChanged ? "bg-red-500/20 ring-1 ring-red-300/40" : "bg-white/5"}`}>
+                  <span className={`text-sm font-black tabular-nums ${rankChangedRecently ? (rankChange?.direction === "up" ? "text-emerald-300" : "text-rose-300") : "text-white/60"}`}>
+                    {index + 1}.
                     {rankChangedRecently ? (
-                      <span className={`ml-1 text-xs ${rankChange?.direction === "up" ? "text-emerald-300" : "text-rose-300"}`}>
-                        {rankChange?.direction === "up" ? "▲" : "▼"}
-                      </span>
+                      <span className="ml-0.5 text-xs">{rankChange?.direction === "up" ? "▲" : "▼"}</span>
                     ) : null}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="truncate text-base font-bold">{row.artist}</p>
-                    <p className="truncate text-xs text-white/70">{row.song}</p>
-                    {changedAt ? (
-                      <p className={`text-xs ${justChanged ? "pulse-dot text-red-200" : "text-white/50"}`}>
-                        Last changed {new Date(changedAt).toLocaleTimeString()}
-                      </p>
-                    ) : null}
-                  </div>
-                  <div className="text-right text-sm font-black text-yellow-300">+{row.delta}</div>
-                  <div className="text-right text-lg font-black text-cyan-300">{row.points}</div>
+                  </span>
+                  <span className="truncate text-sm font-bold text-white">
+                    {artist?.country || row.artist}{artist?.flag ? ` ${artist.flag}` : ""} <span className="text-xs font-semibold text-white/50">#{row.runningOrder}</span>
+                  </span>
+                  {isSemiFinal ? (
+                    <button
+                      type="button"
+                      onClick={() => { void toggleQualified(row.artistId); }}
+                      disabled={!canEditQualified}
+                      className={`rounded-md px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${qualifiedByArtistId[row.artistId] ? "bg-emerald-500/20 text-emerald-300" : "bg-white/10 text-white/60"} ${!canEditQualified ? "cursor-not-allowed opacity-50" : ""}`}
+                    >
+                      {qualifiedByArtistId[row.artistId] ? "Qualified" : "Not qualified"}
+                    </button>
+                  ) : (
+                    <span className="text-sm font-black tabular-nums text-yellow-300">+{row.delta}</span>
+                  )}
+                  <span className="text-sm font-black tabular-nums text-cyan-300">{row.points}</span>
                 </div>
               );
             })}
@@ -331,7 +445,35 @@ export default function LiveResultsPage() {
           </a>
         </section>
 
-
+        {isRoomCreator() ? (
+          <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-white/15 bg-black/45 p-2 backdrop-blur-md md:hidden" aria-label="Footer navigation">
+            <div className="mx-auto grid w-full grid-cols-3 gap-2">
+              <Link href="/" className="rounded-xl bg-white/10 px-2 py-2 text-center text-xs font-bold text-white/85 transition hover:bg-white/20 sm:px-3 sm:text-sm">
+                Voting
+              </Link>
+              <Link href="/" className="rounded-xl bg-white/10 px-2 py-2 text-center text-xs font-bold text-white/85 transition hover:bg-white/20 sm:px-3 sm:text-sm">
+                <span className="sm:hidden">Results</span>
+                <span className="hidden sm:inline">Results</span>
+              </Link>
+              <button className="rounded-xl border border-white/35 bg-white/20 px-2 py-2 text-center text-xs font-bold text-white sm:px-3 sm:text-sm">
+                <span className="sm:hidden">Admin</span>
+                <span className="hidden sm:inline">Admin</span>
+              </button>
+            </div>
+          </nav>
+        ) : (
+          <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-white/15 bg-black/45 p-2 backdrop-blur-md md:hidden" aria-label="Footer navigation">
+            <div className="mx-auto grid w-full grid-cols-2 gap-2">
+              <Link href="/" className="rounded-xl bg-white/10 px-2 py-2 text-center text-xs font-bold text-white/85 transition hover:bg-white/20 sm:px-3 sm:text-sm">
+                Voting
+              </Link>
+              <Link href="/" className="rounded-xl bg-white/10 px-2 py-2 text-center text-xs font-bold text-white/85 transition hover:bg-white/20 sm:px-3 sm:text-sm">
+                <span className="sm:hidden">Results</span>
+                <span className="hidden sm:inline">Results</span>
+              </Link>
+            </div>
+          </nav>
+        )}
       </div>
     </main>
   );

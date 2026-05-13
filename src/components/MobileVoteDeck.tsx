@@ -12,6 +12,9 @@ type Props = {
   getSortedVotesForArtist: (artistId: string) => { voter: string; song: number; show: number; total: number }[];
   savingVoteForArtistId: string | null;
   submitVote: (artistId: string, event?: MouseEvent<HTMLButtonElement>) => void | Promise<void>;
+  submitReaction: (artistId: string, emoji: string, exact?: boolean) => void | Promise<void>;
+  votingCompleted?: boolean;
+  onGoToResults?: () => void;
 };
 
 export function MobileVoteDeck({
@@ -21,9 +24,13 @@ export function MobileVoteDeck({
   getSortedVotesForArtist,
   savingVoteForArtistId,
   submitVote,
+  submitReaction,
+  votingCompleted,
+  onGoToResults,
 }: Props) {
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [openEmojiPickerArtistId, setOpenEmojiPickerArtistId] = useState<string | null>(null);
   const [sliderPulse, setSliderPulse] = useState<{ artistId: string; field: "song" | "show" } | null>(null);
   const [initialViewportHeight] = useState(() => (typeof window !== "undefined" ? window.innerHeight : 800));
 
@@ -61,15 +68,30 @@ export function MobileVoteDeck({
   }, [sliderPulse]);
 
   useEffect(() => {
-    document.documentElement.classList.add("mobile-vote-page-snap");
+    const root = document.documentElement;
+
+    function syncSnapToScrollPosition() {
+      if (window.scrollY <= 0) {
+        root.classList.remove("mobile-vote-page-snap");
+      } else {
+        root.classList.add("mobile-vote-page-snap");
+      }
+    }
+
+    syncSnapToScrollPosition();
+    window.addEventListener("scroll", syncSnapToScrollPosition, { passive: true });
+
     return () => {
-      document.documentElement.classList.remove("mobile-vote-page-snap");
+      window.removeEventListener("scroll", syncSnapToScrollPosition);
+      root.classList.remove("mobile-vote-page-snap");
     };
   }, []);
 
   function scrollToIndex(index: number) {
     cardRefs.current[index]?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
+
+  const customEmojiOptions = ["🤮", "😵", "🙈", "🤣", "😭", "😤", "🥱", "😎", "🔥", "💃", "🕺", "🎉", "💯", "👑", "🫶", "🤯", "😈", "🥳", "🤠", "😇", "🧨", "⚡", "🌈", "💥", "🎯", "🛸", "🦄", "🐉", "🧠", "💅", "🫡", "😜", "🤪", "🥶", "😱", "😏", "🤌", "🫠", "🙃", "🥲", "😬", "🤷", "🫣", "💀", "☠️", "😀", "😁", "😆", "😅", "😂", "🙂", "😍", "🥰", "😘", "😋", "😛", "😝", "🤓", "😴", "😪", "🤤", "😬", "🤢", "🤧", "🥵", "🥸", "👻", "🤡", "💩", "👽", "🎃", "🤝", "👏", "🙌", "👍", "👎", "🙏", "✌️", "🤘", "🫡", "🫶", "💪", "🧡", "💜", "💙", "💚", "🖤", "💔", "❤️", "💕", "💖", "💗", "💓", "💘", "💝", "✨", "🌟", "⭐", "☀️", "🌤️", "⛅", "🌥️", "☁️", "🌦️", "🌧️", "⛈️", "🌩️", "🌨️", "❄️", "☃️", "💨", "🌬️", "🌫️", "🌁", "🌂", "☂️", "☔", "🌈", "🌞", "🌛", "🌪️", "🌊", "🌋", "🌌", "🎶", "🎧", "🎤", "🎬", "🏆", "🥇", "🚀", "🛹", "🏄", "⚽", "🏀", "🎾", "🐶", "🐱", "🦊", "🐺", "🐻", "🐼", "🐨", "🐯", "🦁", "🐮", "🐷", "🐵", "🙊", "🙉", "🙈", "🐸", "🐰", "🐹", "🐭", "🐗", "🐴", "🦄", "🐝", "🐞", "🕷️", "🦂", "🦋", "🐢", "🐍", "🦎", "🐙", "🦑", "🦐", "🦞", "🐠", "🐟", "🐡", "🦈", "🐬", "🐳", "🦭", "🦦", "🦥", "🦔", "🦘", "🦬", "🦒", "🦓", "🦍", "🦧", "🐘", "🦛", "🦏", "🐪", "🦙", "🦣", "🐓", "🐔", "🦃", "🦉", "🦅", "🕊️", "🐧", "🦜", "🦩", "🦚", "🐿️", "🌸", "🌺", "🍀", "🪩", "🧠", "🔮", "🧲", "📈", "💸", "🧾", "👗", "👚", "👕", "👔", "👖", "🧥", "🧶", "🧣", "🧤", "🧦", "👠", "👡", "👢", "👟", "🥾", "🥿", "👒", "🎩", "🧢", "👑", "👜", "👛", "🕶️", "💍", "📿", "🩱", "🩲", "🥻", "👘", "🪭", "🎭", "🕺", "💃", "🪩", "🎆", "🎇", "🧨", "🔥", "💨", "⚡", "🌈", "🎤", "🎙️", "🎚️", "🎛️", "🔊", "🎵", "🎶", "✨", "💫", "🌟", "⭐"];
 
   if (!artists.length) return null;
 
@@ -146,7 +168,7 @@ export function MobileVoteDeck({
 
               <div className="absolute left-2.5 right-2.5 top-2.5 flex items-start justify-between">
                 <span className="rounded-full bg-black/65 px-3 py-1.5 text-base font-black text-white backdrop-blur-sm">
-                  #{index + 1}{artist.country ? ` · ${artist.country}` : ""}
+                  #{index + 1}
                 </span>
                 {rankedVotes.length ? (
                   <div className="w-auto max-w-[min(72vw,260px)] overflow-hidden rounded-lg border border-white/20 bg-black/65 backdrop-blur-sm">
@@ -157,7 +179,7 @@ export function MobileVoteDeck({
                       <span className="text-right">Pts</span>
                     </div>
                     <div className="divide-y divide-white/10">
-                      {rankedVotes.slice(0, 5).map((vote) => (
+                      {rankedVotes.map((vote) => (
                         <div key={`${artist.id}-${vote.voter}`} className="grid grid-cols-[minmax(0,1fr)_2.35rem_2.35rem_2.35rem] items-center gap-1 px-2 py-1 text-sm">
                           <span className="font-semibold text-white/90">{vote.voter.length > 10 ? `${vote.voter.slice(0, 10)}…` : vote.voter}</span>
                           <span className="text-right font-semibold tabular-nums text-white/80">{vote.song}</span>
@@ -166,57 +188,120 @@ export function MobileVoteDeck({
                         </div>
                       ))}
                     </div>
-                    {rankedVotes.length > 5 ? (
-                      <div className="border-t border-white/10 px-2 py-1 text-right text-xs font-semibold text-white/70">
-                        +{rankedVotes.length - 5} more
-                      </div>
-                    ) : null}
                   </div>
                 ) : null}
               </div>
 
               <div className="relative flex min-h-[inherit] flex-col justify-end p-3 pt-[42%]">
                 <div className="pointer-events-auto">
-                  <h2 className="flex items-center gap-2 text-2xl font-black leading-tight drop-shadow-md">
+                  <h2 className="flex flex-wrap items-center gap-x-2 text-2xl font-black leading-tight drop-shadow-md">
+                    {artist.country ? <span>{artist.country} •</span> : null}
                     <span>{artist.name}</span>
                   </h2>
                   {artist.song ? <p className="mt-1 text-sm font-semibold from-fuchsia-300 drop-shadow">♪ {artist.song}</p> : null}
 
-                  <div className={`mt-4 grid grid-cols-[58px_30px_1fr] items-center gap-x-2 gap-y-0 transition-transform duration-200 ease-out ${songPulse ? "vote-slider-nudge" : ""}`}>
-                    <p className="self-center text-xl leading-none font-semibold text-white/90">Song</p>
-                    <p className="self-center text-xl leading-none font-black text-fuchsia-200">{score.song}</p>
-                    <Slider
-                      size="large"
-                      value={score.song}
-                      min={0}
-                      max={12}
-                      onChange={(value) => updateDraftScore(artist.id, "song", value)}
-                      onValueCommit={() => setSliderPulse({ artistId: artist.id, field: "song" })}
-                      className="mb-0"
-                    />
-                  </div>
-                  <div className={`mt-6 grid grid-cols-[58px_30px_1fr] items-center gap-x-2 gap-y-0 transition-transform duration-200 ease-out ${showPulse ? "vote-slider-nudge" : ""}`}>
-                    <p className="self-center text-xl leading-none font-semibold text-white/90">Show</p>
-                    <p className="self-center text-xl leading-none font-black text-amber-300">{score.show}</p>
-                    <Slider
-                      size="large"
-                      value={score.show}
-                      min={0}
-                      max={12}
-                      onChange={(value) => updateDraftScore(artist.id, "show", value)}
-                      onValueCommit={() => setSliderPulse({ artistId: artist.id, field: "show" })}
-                      className="mb-0"
-                    />
-                  </div>
+                  {votingCompleted ? (
+                    <button
+                      type="button"
+                      onClick={onGoToResults}
+                      className="mt-6 mb-1 min-h-[44px] w-full rounded-2xl bg-emerald-500 px-4 py-2.5 text-base font-black text-white shadow-lg active:scale-[0.98]"
+                    >
+                      Go to Results →
+                    </button>
+                  ) : (
+                    <>
+                      <div className={`mt-4 grid grid-cols-[58px_30px_1fr] items-center gap-x-2 gap-y-0 transition-transform duration-200 ease-out ${songPulse ? "vote-slider-nudge" : ""}`}>
+                        <p className="self-center text-xl leading-none font-semibold text-white/90">Song</p>
+                        <p className="self-center text-xl leading-none font-black text-fuchsia-200">{score.song}</p>
+                        <Slider
+                          size="large"
+                          value={score.song}
+                          min={0}
+                          max={12}
+                          onChange={(value) => updateDraftScore(artist.id, "song", value)}
+                          onValueCommit={() => setSliderPulse({ artistId: artist.id, field: "song" })}
+                          className="mb-0"
+                        />
+                      </div>
+                      <div className={`mt-6 grid grid-cols-[58px_30px_1fr] items-center gap-x-2 gap-y-0 transition-transform duration-200 ease-out ${showPulse ? "vote-slider-nudge" : ""}`}>
+                        <p className="self-center text-xl leading-none font-semibold text-white/90">Show</p>
+                        <p className="self-center text-xl leading-none font-black text-amber-300">{score.show}</p>
+                        <Slider
+                          size="large"
+                          value={score.show}
+                          min={0}
+                          max={12}
+                          onChange={(value) => updateDraftScore(artist.id, "show", value)}
+                          onValueCommit={() => setSliderPulse({ artistId: artist.id, field: "show" })}
+                          className="mb-0"
+                        />
+                      </div>
 
-                  <button
-                    type="button"
-                    onClick={(event) => void submitVote(artist.id, event)}
-                    disabled={savingVoteForArtistId === artist.id}
-                    className="vote-deck-cta mt-6 mb-1 min-h-[44px] w-full rounded-2xl bg-gradient-to-r from-fuchsia-500 via-violet-500 to-blue-500 px-4 py-2.5 text-base font-black text-white shadow-lg shadow-fuchsia-900/35 active:scale-[0.98] disabled:opacity-50"
-                  >
-                    {savingVoteForArtistId === artist.id ? "Saving…" : `Submit ${sum} points to ${artist.country ?? artist.name}`}
-                  </button>
+                      <button
+                        type="button"
+                        onClick={(event) => void submitVote(artist.id, event)}
+                        disabled={savingVoteForArtistId === artist.id}
+                        className="vote-deck-cta mt-6 mb-1 min-h-[44px] w-full rounded-2xl bg-gradient-to-r from-fuchsia-500 via-violet-500 to-blue-500 px-4 py-2.5 text-base font-black text-white shadow-lg shadow-fuchsia-900/35 active:scale-[0.98] disabled:opacity-50"
+                      >
+                        {savingVoteForArtistId === artist.id ? "Saving…" : `Submit ${sum} points to ${artist.country ?? artist.name}`}
+                      </button>
+
+                      <div className="mt-2 grid grid-cols-6 gap-1.5">
+                        {[
+                          { emoji: "😳", label: "Cringe" },
+                          { emoji: "👎", label: "Thumbs down" },
+                          { emoji: "😂", label: "Laughing" },
+                          { emoji: "👏", label: "Clapping" },
+                          { emoji: "👍", label: "Thumbs up" },
+                        ].map((option) => (
+                          <button
+                            key={option.emoji}
+                            type="button"
+                            onClick={(event) => {
+                              event.preventDefault();
+                              event.stopPropagation();
+                              void submitReaction(artist.id, option.emoji);
+                            }}
+                            className="inline-flex min-h-[40px] items-center justify-center rounded-xl border border-white/15 bg-white/5 px-2 py-2 text-lg"
+                            aria-label={option.label}
+                            title={option.label}
+                          >
+                            {option.emoji}
+                          </button>
+                        ))}
+                        <button
+                          type="button"
+                          onClick={() => setOpenEmojiPickerArtistId((current) => (current === artist.id ? null : artist.id))}
+                          className="inline-flex min-h-[40px] items-center justify-center rounded-xl border border-white/15 bg-white/5 px-2 py-2 text-lg"
+                          aria-label="Custom emoji"
+                          title="Custom emoji"
+                        >
+                          ➕
+                        </button>
+                      </div>
+
+                      {openEmojiPickerArtistId === artist.id ? (
+                        <div className="mt-2 max-h-36 overflow-y-auto rounded-xl border border-white/50 bg-white/65 p-2 backdrop-blur-sm [scrollbar-gutter:stable_both-edges]">
+                          <div className="grid grid-cols-8 gap-1.5">
+                            {customEmojiOptions.map((emoji) => (
+                              <button
+                                key={`${artist.id}-${emoji}`}
+                                type="button"
+                                onClick={() => {
+                                  void submitReaction(artist.id, emoji, true);
+                                  setOpenEmojiPickerArtistId(null);
+                                }}
+                                className="inline-flex items-center justify-center rounded-lg border border-white/30 bg-white/20 px-1 py-1.5 text-3xl leading-none"
+                                aria-label={`React with ${emoji}`}
+                              >
+                                {emoji}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      ) : null}
+                    </>
+                  )}
                 </div>
               </div>
             </div>

@@ -1,0 +1,1554 @@
+{
+  "eventId": "eurovision-2026",
+  "roomCode": "3P33W3",
+  "artists": [
+    {
+      "id": "moldova",
+      "name": "Satoshi",
+      "song": "Viva, Moldova!",
+      "country": "Moldova",
+      "flag": "🇲🇩",
+      "imageUrl": "https://storage.googleapis.com/eurovision-com.appspot.com/renditions/public/cms/moldovapng/Moldova-fill_size%3D2560x1600-focal_point%3D1167x399-focal_size%3D482x523-fill_size%3D2560x1600-focal_point%3D1167x399-focal_size%3D482x523.png",
+      "runningOrder": 1
+    },
+    {
+      "id": "sweden",
+      "name": "FELICIA",
+      "song": "My System",
+      "country": "Sweden",
+      "flag": "🇸🇪",
+      "imageUrl": "https://storage.googleapis.com/eurovision-com.appspot.com/renditions/public/cms/felicia_69ac8624368c5_26_lizzsa7jpg/felicia_69ac8624368c5_26_lIzZSa7-fill_size%3D2560x1600-focal_point%3D840x440-focal_size%3D460x535-fill_size%3D2560x1600-focal_point%3D840x440-focal_size%3D460x535.jpg",
+      "runningOrder": 2
+    },
+    {
+      "id": "croatia",
+      "name": "LELEK",
+      "song": "Andromeda",
+      "country": "Croatia",
+      "flag": "🇭🇷",
+      "imageUrl": "https://storage.googleapis.com/eurovision-com.appspot.com/renditions/public/cms/lelek_-croatia_-photo-by-hrt-dario-njavro_-8png/lelek_%20croatia_%20photo%20by%20hrt%20%26%20dario%20njavro_%20%20%288%29-fill_size%3D2560x1600-focal_point%3D1256x584-focal_size%3D188x188-fill_size%3D2560x1600-focal_point%3D1256x584-focal_size%3D188x188.png",
+      "runningOrder": 3
+    },
+    {
+      "id": "greece",
+      "name": "Akylas",
+      "song": "Ferto",
+      "country": "Greece",
+      "flag": "🇬🇷",
+      "imageUrl": "https://storage.googleapis.com/eurovision-com.appspot.com/renditions/public/cms/greecejpg/Greece-fill_size%3D2560x1600-focal_point%3D1241x405-focal_size%3D310x253-fill_size%3D2560x1600-focal_point%3D1241x405-focal_size%3D310x253.jpg",
+      "runningOrder": 4
+    },
+    {
+      "id": "portugal",
+      "name": "Bandidos do Cante",
+      "song": "Rosa",
+      "country": "Portugal",
+      "flag": "🇵🇹",
+      "imageUrl": "https://storage.googleapis.com/eurovision-com.appspot.com/renditions/public/cms/foto-bandidos-do-cantejpg/Foto%20Bandidos%20do%20Cante-fill_size%3D2560x1600-focal_point%3D1050x559-focal_size%3D333x310-fill_size%3D2560x1600-focal_point%3D1050x559-focal_size%3D333x310.jpg",
+      "runningOrder": 5
+    },
+    {
+      "id": "georgia",
+      "name": "Bzikebi",
+      "song": "On Replay",
+      "country": "Georgia",
+      "flag": "🇬🇪",
+      "imageUrl": "https://storage.googleapis.com/eurovision-com.appspot.com/renditions/public/cms/georgiapng/Georgia-fill_size%3D2560x1600-focal_point%3D1281x262-focal_size%3D188x188-fill_size%3D2560x1600-focal_point%3D1281x262-focal_size%3D188x188.png",
+      "runningOrder": 6
+    },
+    {
+      "id": "finland",
+      "name": "Linda Lampenius x Pete Parkkonen",
+      "song": "Liekinheitin",
+      "country": "Finland",
+      "flag": "🇫🇮",
+      "imageUrl": "https://storage.googleapis.com/eurovision-com.appspot.com/renditions/public/cms/linda_lampenius_x_pete_parkkonen_music_video_still_credit_nelli_kentta_lcyg46bjpg/Linda_Lampenius_x_Pete_Parkkonen_music_video_still_Credit_Nelli_kentta_LCYG46b-fill_size%3D2560x1600-focal_point%3D2546x913-focal_size%3D968x704-fill_size%3D2560x1600-focal_point%3D2546x913-focal_size%3D968x704.jpg",
+      "runningOrder": 7
+    },
+    {
+      "id": "montenegro",
+      "name": "Tamara Živković",
+      "song": "Nova Zora",
+      "country": "Montenegro",
+      "flag": "🇲🇪",
+      "imageUrl": "https://storage.googleapis.com/eurovision-com.appspot.com/renditions/public/cms/montenegrojpg/Montenegro-fill_size%3D2560x1600-focal_point%3D1378x418-focal_size%3D308x368-fill_size%3D2560x1600-focal_point%3D1378x418-focal_size%3D308x368.jpg",
+      "runningOrder": 8
+    },
+    {
+      "id": "estonia",
+      "name": "Vanilla Ninja",
+      "song": "Too Epic To Be True",
+      "country": "Estonia",
+      "flag": "🇪🇪",
+      "imageUrl": "https://storage.googleapis.com/eurovision-com.appspot.com/renditions/public/cms/estoniajpg/Estonia-fill_size%3D2560x1600-focal_point%3D1181x1630-focal_size%3D450x468-fill_size%3D2560x1600-focal_point%3D1181x1630-focal_size%3D450x468.jpg",
+      "runningOrder": 9
+    },
+    {
+      "id": "israel",
+      "name": "Noam Bettan",
+      "song": "Michelle",
+      "country": "Israel",
+      "flag": "🇮🇱",
+      "imageUrl": "https://storage.googleapis.com/eurovision-com.appspot.com/renditions/public/cms/israeljpg/Israel-fill_size%3D2560x1600-focal_point%3D1204x310-focal_size%3D259x267-fill_size%3D2560x1600-focal_point%3D1204x310-focal_size%3D259x267.jpg",
+      "runningOrder": 10
+    },
+    {
+      "id": "belgium",
+      "name": "ESSYLA",
+      "song": "Dancing on the Ice",
+      "country": "Belgium",
+      "flag": "🇧🇪",
+      "imageUrl": "https://storage.googleapis.com/eurovision-com.appspot.com/renditions/public/cms/essyla-euro_l_rs_ekrztndjpg/ESSYLA%20EURO_L_RS_ekRZTnD-fill_size%3D2560x1600-focal_point%3D973x526-focal_size%3D423x369-fill_size%3D2560x1600-focal_point%3D973x526-focal_size%3D423x369.jpg",
+      "runningOrder": 11
+    },
+    {
+      "id": "lithuania",
+      "name": "Lion Ceccah",
+      "song": "Sólo quiero más",
+      "country": "Lithuania",
+      "flag": "🇱🇹",
+      "imageUrl": "https://storage.googleapis.com/eurovision-com.appspot.com/renditions/public/cms/lithuaniajpg/Lithuania-fill_size%3D2560x1600-focal_point%3D1306x690-focal_size%3D570x459-fill_size%3D2560x1600-focal_point%3D1306x690-focal_size%3D570x459.jpg",
+      "runningOrder": 12
+    },
+    {
+      "id": "san-marino",
+      "name": "Senhit",
+      "song": "Superstar",
+      "country": "San Marino",
+      "flag": "🇸🇲",
+      "imageUrl": "https://storage.googleapis.com/eurovision-com.appspot.com/renditions/public/cms/san-marinojpg/San%20Marino-fill_size%3D2560x1600-focal_point%3D1335x451-focal_size%3D318x413-fill_size%3D2560x1600-focal_point%3D1335x451-focal_size%3D318x413.jpg",
+      "runningOrder": 13
+    },
+    {
+      "id": "poland",
+      "name": "Alicja",
+      "song": "Pray",
+      "country": "Poland",
+      "flag": "🇵🇱",
+      "imageUrl": "https://storage.googleapis.com/eurovision-com.appspot.com/renditions/public/cms/polandjpeg/Poland-fill_size%3D2560x1600-focal_point%3D1241x537-focal_size%3D422x416-fill_size%3D2560x1600-focal_point%3D1241x537-focal_size%3D422x416.jpeg",
+      "runningOrder": 14
+    },
+    {
+      "id": "serbia",
+      "name": "Lavina",
+      "song": "Kraj mene",
+      "country": "Serbia",
+      "flag": "🇷🇸",
+      "imageUrl": "https://storage.googleapis.com/eurovision-com.appspot.com/renditions/public/cms/serbia-lavina-photo-5-by-natasa-stamatovicjpg/Serbia%2C%20Lavina%2C%20photo%205%20by%20Nata%C5%A1a%20Stamatovi%C4%87-fill_size%3D2560x1600-focal_point%3D1905x1014-focal_size%3D345x300-fill_size%3D2560x1600-focal_point%3D1905x1014-focal_size%3D345x300.jpg",
+      "runningOrder": 15
+    }
+  ],
+  "votes": [
+    {
+      "id": "02a3f0e2-1462-49ba-a862-892271bd246f",
+      "voter": "Björn",
+      "artistId": "moldova",
+      "song": 4,
+      "show": 7,
+      "total": 11,
+      "createdAt": "2026-05-12T19:15:20.136Z",
+      "updatedAt": "2026-05-12T19:16:08.032Z"
+    },
+    {
+      "id": "30942541-586a-4341-9a99-a787d5eb01ec",
+      "voter": "Sarah",
+      "artistId": "moldova",
+      "song": 3,
+      "show": 5,
+      "total": 8,
+      "createdAt": "2026-05-12T19:15:21.358Z",
+      "updatedAt": "2026-05-12T19:15:21.358Z"
+    },
+    {
+      "id": "debefbc7-b9e2-4f02-a811-39c71eb5b5dc",
+      "voter": "Nina",
+      "artistId": "moldova",
+      "song": 2,
+      "show": 1,
+      "total": 3,
+      "createdAt": "2026-05-12T19:15:33.366Z",
+      "updatedAt": "2026-05-12T19:15:33.366Z"
+    },
+    {
+      "id": "100d5a69-514c-4ffa-a2bb-fb14ae839dbd",
+      "voter": "Bissen og Chica 🦄",
+      "artistId": "moldova",
+      "song": 2,
+      "show": 3,
+      "total": 5,
+      "createdAt": "2026-05-12T19:16:44.831Z",
+      "updatedAt": "2026-05-12T19:16:44.831Z"
+    },
+    {
+      "id": "b85a9961-bfac-46dc-8b69-b5d437586cc2",
+      "voter": "Hansi",
+      "artistId": "moldova",
+      "song": 2,
+      "show": 3,
+      "total": 5,
+      "createdAt": "2026-05-12T19:16:54.831Z",
+      "updatedAt": "2026-05-12T19:16:54.831Z"
+    },
+    {
+      "id": "35f4ac15-153d-44f4-8d2c-9e99c965b63a",
+      "voter": "Hansi",
+      "artistId": "sweden",
+      "song": 8,
+      "show": 7,
+      "total": 15,
+      "createdAt": "2026-05-12T19:19:00.146Z",
+      "updatedAt": "2026-05-12T19:19:00.146Z"
+    },
+    {
+      "id": "d89f8af0-c7a1-488a-b313-3e96c0ac655d",
+      "voter": "Sarah",
+      "artistId": "sweden",
+      "song": 4,
+      "show": 10,
+      "total": 14,
+      "createdAt": "2026-05-12T19:19:19.541Z",
+      "updatedAt": "2026-05-12T19:19:19.541Z"
+    },
+    {
+      "id": "ed21acda-880c-4e4d-8bf2-8d7942bd1a88",
+      "voter": "Björn",
+      "artistId": "sweden",
+      "song": 10,
+      "show": 8,
+      "total": 18,
+      "createdAt": "2026-05-12T19:19:28.275Z",
+      "updatedAt": "2026-05-12T19:19:28.275Z"
+    },
+    {
+      "id": "b1172a15-6668-4917-865a-57d9633cdc11",
+      "voter": "Bissen og Chica 🦄",
+      "artistId": "sweden",
+      "song": 7,
+      "show": 10,
+      "total": 17,
+      "createdAt": "2026-05-12T19:19:54.365Z",
+      "updatedAt": "2026-05-12T19:19:54.365Z"
+    },
+    {
+      "id": "1459d76a-b272-4098-a732-6c4330b681f0",
+      "voter": "Nina",
+      "artistId": "sweden",
+      "song": 7,
+      "show": 7,
+      "total": 14,
+      "createdAt": "2026-05-12T19:20:16.153Z",
+      "updatedAt": "2026-05-12T19:20:16.153Z"
+    },
+    {
+      "id": "0d968a06-c69d-4ed1-b9fb-aeac6db15bcb",
+      "voter": "Sienna",
+      "artistId": "sweden",
+      "song": 8,
+      "show": 7,
+      "total": 15,
+      "createdAt": "2026-05-12T19:20:35.360Z",
+      "updatedAt": "2026-05-12T19:20:35.360Z"
+    },
+    {
+      "id": "9e499705-42d4-4bc5-9b2b-41291cad3d48",
+      "voter": "Nina",
+      "artistId": "croatia",
+      "song": 1,
+      "show": 2,
+      "total": 3,
+      "createdAt": "2026-05-12T19:23:36.811Z",
+      "updatedAt": "2026-05-12T19:23:48.222Z"
+    },
+    {
+      "id": "24d14657-dc8d-48c6-b250-49427668e7b9",
+      "voter": "Björn",
+      "artistId": "croatia",
+      "song": 4,
+      "show": 2,
+      "total": 6,
+      "createdAt": "2026-05-12T19:23:42.487Z",
+      "updatedAt": "2026-05-12T19:23:42.487Z"
+    },
+    {
+      "id": "343c4cc3-cb23-43c3-9484-1cc75f70d83e",
+      "voter": "Hansi",
+      "artistId": "croatia",
+      "song": 1,
+      "show": 4,
+      "total": 5,
+      "createdAt": "2026-05-12T19:24:08.549Z",
+      "updatedAt": "2026-05-12T19:24:08.549Z"
+    },
+    {
+      "id": "6ae2bada-a705-4438-866c-68bd1a3b089c",
+      "voter": "Bissen og Chica 🦄",
+      "artistId": "croatia",
+      "song": 4,
+      "show": 6,
+      "total": 10,
+      "createdAt": "2026-05-12T19:24:16.591Z",
+      "updatedAt": "2026-05-12T19:24:16.591Z"
+    },
+    {
+      "id": "e9025654-363c-415c-8cee-551624b43538",
+      "voter": "Sienna",
+      "artistId": "croatia",
+      "song": 1,
+      "show": 2,
+      "total": 3,
+      "createdAt": "2026-05-12T19:24:32.832Z",
+      "updatedAt": "2026-05-12T19:24:32.832Z"
+    },
+    {
+      "id": "5cf337e5-3ec9-4b5a-a6ee-8c566be28dd1",
+      "voter": "Sarah",
+      "artistId": "croatia",
+      "song": 4,
+      "show": 6,
+      "total": 10,
+      "createdAt": "2026-05-12T19:25:25.734Z",
+      "updatedAt": "2026-05-12T19:25:25.734Z"
+    },
+    {
+      "id": "ca7a6521-3c7b-4007-b146-8cbe274a8e0b",
+      "voter": "Hansi",
+      "artistId": "greece",
+      "song": 5,
+      "show": 8,
+      "total": 13,
+      "createdAt": "2026-05-12T19:27:21.467Z",
+      "updatedAt": "2026-05-12T19:27:21.467Z"
+    },
+    {
+      "id": "69f193a3-05ac-4c4d-ba22-0559bdf0e0b8",
+      "voter": "Sarah",
+      "artistId": "greece",
+      "song": 1,
+      "show": 6,
+      "total": 7,
+      "createdAt": "2026-05-12T19:27:28.582Z",
+      "updatedAt": "2026-05-12T19:27:28.582Z"
+    },
+    {
+      "id": "ab90c11a-efd3-495a-90ff-390172620d11",
+      "voter": "Nina",
+      "artistId": "greece",
+      "song": 4,
+      "show": 10,
+      "total": 14,
+      "createdAt": "2026-05-12T19:27:32.274Z",
+      "updatedAt": "2026-05-12T19:27:44.834Z"
+    },
+    {
+      "id": "0baa4a0a-412f-4b9e-963a-98b675df258d",
+      "voter": "Mich",
+      "artistId": "greece",
+      "song": 0,
+      "show": 0,
+      "total": 0,
+      "createdAt": "2026-05-12T19:27:41.264Z",
+      "updatedAt": "2026-05-12T19:27:41.264Z"
+    },
+    {
+      "id": "1f984a94-995e-4b3e-9f66-9376d5d3caea",
+      "voter": "Sienna",
+      "artistId": "greece",
+      "song": 4,
+      "show": 10,
+      "total": 14,
+      "createdAt": "2026-05-12T19:27:58.959Z",
+      "updatedAt": "2026-05-12T19:27:58.959Z"
+    },
+    {
+      "id": "5f64fb28-b54b-424a-9174-3a376aa5597c",
+      "voter": "Björn",
+      "artistId": "greece",
+      "song": 0,
+      "show": 1,
+      "total": 1,
+      "createdAt": "2026-05-12T19:28:01.761Z",
+      "updatedAt": "2026-05-12T19:28:01.761Z"
+    },
+    {
+      "id": "dbed48f1-c58f-48ce-8cae-e52ad4a79a7f",
+      "voter": "Bissen og Chica 🦄",
+      "artistId": "greece",
+      "song": 3,
+      "show": 6,
+      "total": 9,
+      "createdAt": "2026-05-12T19:28:23.467Z",
+      "updatedAt": "2026-05-12T19:28:23.467Z"
+    },
+    {
+      "id": "130ed1c3-1aed-459f-b110-ed5cdc11bbae",
+      "voter": "Björn",
+      "artistId": "portugal",
+      "song": 5,
+      "show": 2,
+      "total": 7,
+      "createdAt": "2026-05-12T19:31:34.245Z",
+      "updatedAt": "2026-05-12T19:31:34.245Z"
+    },
+    {
+      "id": "d70df86a-b0ed-41bd-a7da-2ccf61a41f21",
+      "voter": "Sarah",
+      "artistId": "portugal",
+      "song": 3,
+      "show": 1,
+      "total": 4,
+      "createdAt": "2026-05-12T19:31:45.616Z",
+      "updatedAt": "2026-05-12T19:31:45.616Z"
+    },
+    {
+      "id": "cc8ad871-abef-4f20-aaa1-94bc9ffd7b16",
+      "voter": "Sienna",
+      "artistId": "portugal",
+      "song": 4,
+      "show": 4,
+      "total": 8,
+      "createdAt": "2026-05-12T19:32:02.606Z",
+      "updatedAt": "2026-05-12T19:32:02.606Z"
+    },
+    {
+      "id": "d1cf9307-bd30-4185-909a-a1ad95507305",
+      "voter": "Hansi",
+      "artistId": "portugal",
+      "song": 2,
+      "show": 4,
+      "total": 6,
+      "createdAt": "2026-05-12T19:32:20.464Z",
+      "updatedAt": "2026-05-12T19:32:58.070Z"
+    },
+    {
+      "id": "259e0d21-6e6d-4237-a655-96558d6dd25f",
+      "voter": "Nina",
+      "artistId": "portugal",
+      "song": 4,
+      "show": 3,
+      "total": 7,
+      "createdAt": "2026-05-12T19:32:29.442Z",
+      "updatedAt": "2026-05-12T19:32:29.442Z"
+    },
+    {
+      "id": "c88d9b43-abf4-4bed-b3f5-a56a4b546e5f",
+      "voter": "Bissen og Chica 🦄",
+      "artistId": "portugal",
+      "song": 2,
+      "show": 2,
+      "total": 4,
+      "createdAt": "2026-05-12T19:33:12.565Z",
+      "updatedAt": "2026-05-12T19:33:12.565Z"
+    },
+    {
+      "id": "c70c9640-7e65-4270-960d-1b272694c9d3",
+      "voter": "Sienna",
+      "artistId": "georgia",
+      "song": 1,
+      "show": 1,
+      "total": 2,
+      "createdAt": "2026-05-12T19:36:43.598Z",
+      "updatedAt": "2026-05-12T19:36:43.598Z"
+    },
+    {
+      "id": "0ac0dd7f-3605-4b98-9c05-ef00d5ae5fc9",
+      "voter": "Sarah",
+      "artistId": "georgia",
+      "song": 2,
+      "show": 2,
+      "total": 4,
+      "createdAt": "2026-05-12T19:36:45.745Z",
+      "updatedAt": "2026-05-12T19:36:45.745Z"
+    },
+    {
+      "id": "28dc5202-8287-46a2-a152-c00c3e89fa0c",
+      "voter": "Nina",
+      "artistId": "georgia",
+      "song": 1,
+      "show": 1,
+      "total": 2,
+      "createdAt": "2026-05-12T19:36:56.089Z",
+      "updatedAt": "2026-05-12T19:36:56.089Z"
+    },
+    {
+      "id": "5a6ba6a6-b172-4ef0-a888-d3dc2a5146e8",
+      "voter": "Björn",
+      "artistId": "georgia",
+      "song": 1,
+      "show": 2,
+      "total": 3,
+      "createdAt": "2026-05-12T19:36:59.261Z",
+      "updatedAt": "2026-05-12T19:36:59.261Z"
+    },
+    {
+      "id": "951c75e4-00fb-4a1c-a6f6-75a2c446320f",
+      "voter": "Bissen og Chica 🦄",
+      "artistId": "georgia",
+      "song": 0,
+      "show": 1,
+      "total": 1,
+      "createdAt": "2026-05-12T19:37:00.372Z",
+      "updatedAt": "2026-05-12T19:37:00.372Z"
+    },
+    {
+      "id": "6728f3fb-e351-4894-8261-ca4338a57856",
+      "voter": "Hansi",
+      "artistId": "georgia",
+      "song": 1,
+      "show": 3,
+      "total": 4,
+      "createdAt": "2026-05-12T19:37:09.452Z",
+      "updatedAt": "2026-05-12T19:37:09.452Z"
+    },
+    {
+      "id": "0534dcb8-5e94-45a3-8d0f-fae0f2a4d6b3",
+      "voter": "Sarah",
+      "artistId": "finland",
+      "song": 12,
+      "show": 12,
+      "total": 24,
+      "createdAt": "2026-05-12T19:48:43.744Z",
+      "updatedAt": "2026-05-12T19:48:57.068Z"
+    },
+    {
+      "id": "73fbbf40-b5b5-4055-9a8c-54995a619dfa",
+      "voter": "Björn",
+      "artistId": "finland",
+      "song": 7,
+      "show": 8,
+      "total": 15,
+      "createdAt": "2026-05-12T19:48:56.639Z",
+      "updatedAt": "2026-05-12T19:48:56.639Z"
+    },
+    {
+      "id": "c450fd46-7edc-43c4-9ea0-45e3f10c850f",
+      "voter": "Liva",
+      "artistId": "finland",
+      "song": 12,
+      "show": 12,
+      "total": 24,
+      "createdAt": "2026-05-12T19:49:00.777Z",
+      "updatedAt": "2026-05-12T19:49:00.777Z"
+    },
+    {
+      "id": "cc2b1eec-be72-4504-b286-09e576b83262",
+      "voter": "Nina",
+      "artistId": "finland",
+      "song": 10,
+      "show": 10,
+      "total": 20,
+      "createdAt": "2026-05-12T19:50:35.266Z",
+      "updatedAt": "2026-05-12T19:50:35.266Z"
+    },
+    {
+      "id": "87bad786-aa88-4684-816c-b1f2f84f167e",
+      "voter": "Hansi",
+      "artistId": "finland",
+      "song": 8,
+      "show": 10,
+      "total": 18,
+      "createdAt": "2026-05-12T19:50:41.298Z",
+      "updatedAt": "2026-05-12T19:50:41.298Z"
+    },
+    {
+      "id": "f3d1a97e-a0f1-4baa-bd79-145a178ed91e",
+      "voter": "Bissen og Chica 🦄",
+      "artistId": "finland",
+      "song": 10,
+      "show": 10,
+      "total": 20,
+      "createdAt": "2026-05-12T19:51:01.820Z",
+      "updatedAt": "2026-05-12T19:51:01.820Z"
+    },
+    {
+      "id": "8eccbc1e-3571-4e82-9c3b-b61af71ec626",
+      "voter": "Sienna",
+      "artistId": "finland",
+      "song": 12,
+      "show": 10,
+      "total": 22,
+      "createdAt": "2026-05-12T19:51:13.360Z",
+      "updatedAt": "2026-05-12T19:51:13.360Z"
+    },
+    {
+      "id": "dac880b0-69f6-479d-88c9-0ca047a0f088",
+      "voter": "Björn",
+      "artistId": "montenegro",
+      "song": 10,
+      "show": 3,
+      "total": 13,
+      "createdAt": "2026-05-12T19:54:11.563Z",
+      "updatedAt": "2026-05-12T19:54:11.563Z"
+    },
+    {
+      "id": "30e13a52-2d4e-4ad5-89b3-8ffc1e1521da",
+      "voter": "Sarah",
+      "artistId": "montenegro",
+      "song": 6,
+      "show": 5,
+      "total": 11,
+      "createdAt": "2026-05-12T19:54:25.770Z",
+      "updatedAt": "2026-05-12T19:54:25.770Z"
+    },
+    {
+      "id": "db66e926-6fdf-4ae2-8395-10e4b4733581",
+      "voter": "Bissen og Chica 🦄",
+      "artistId": "montenegro",
+      "song": 8,
+      "show": 7,
+      "total": 15,
+      "createdAt": "2026-05-12T19:54:43.291Z",
+      "updatedAt": "2026-05-12T19:54:43.291Z"
+    },
+    {
+      "id": "f3f14c28-5ae2-4e6d-b736-efdd269e1ab0",
+      "voter": "Hansi",
+      "artistId": "montenegro",
+      "song": 8,
+      "show": 6,
+      "total": 14,
+      "createdAt": "2026-05-12T19:56:00.304Z",
+      "updatedAt": "2026-05-12T19:56:04.531Z"
+    },
+    {
+      "id": "0c62c594-d5ca-4da8-9b3a-b1c826194795",
+      "voter": "Nina",
+      "artistId": "montenegro",
+      "song": 5,
+      "show": 5,
+      "total": 10,
+      "createdAt": "2026-05-12T19:57:12.390Z",
+      "updatedAt": "2026-05-12T19:57:12.390Z"
+    },
+    {
+      "id": "f7b57c9c-f27d-4138-8450-9c229eb3656b",
+      "voter": "Sarah",
+      "artistId": "estonia",
+      "song": 1,
+      "show": 0,
+      "total": 1,
+      "createdAt": "2026-05-12T19:58:06.592Z",
+      "updatedAt": "2026-05-12T19:58:06.592Z"
+    },
+    {
+      "id": "405ca8cb-65f9-41f7-8e8d-60a4c062cbd2",
+      "voter": "Nina",
+      "artistId": "estonia",
+      "song": 2,
+      "show": 2,
+      "total": 4,
+      "createdAt": "2026-05-12T19:58:16.376Z",
+      "updatedAt": "2026-05-12T19:58:16.376Z"
+    },
+    {
+      "id": "d2a00c86-be75-43fc-8983-f12e59bd4c82",
+      "voter": "Hansi",
+      "artistId": "estonia",
+      "song": 5,
+      "show": 4,
+      "total": 9,
+      "createdAt": "2026-05-12T19:58:27.987Z",
+      "updatedAt": "2026-05-12T19:58:27.987Z"
+    },
+    {
+      "id": "15004735-4d5d-45db-9a2c-1c51b02dbcde",
+      "voter": "Björn",
+      "artistId": "estonia",
+      "song": 5,
+      "show": 5,
+      "total": 10,
+      "createdAt": "2026-05-12T19:58:41.348Z",
+      "updatedAt": "2026-05-12T19:58:41.348Z"
+    },
+    {
+      "id": "d6e0ff7a-c91f-48c2-8024-4fc0e834ddfa",
+      "voter": "Bissen og Chica 🦄",
+      "artistId": "estonia",
+      "song": 4,
+      "show": 7,
+      "total": 11,
+      "createdAt": "2026-05-12T19:59:21.499Z",
+      "updatedAt": "2026-05-12T19:59:21.499Z"
+    },
+    {
+      "id": "179bbd92-e1f8-4ef7-8dfe-827387037266",
+      "voter": "Sarah",
+      "artistId": "israel",
+      "song": 5,
+      "show": 2,
+      "total": 7,
+      "createdAt": "2026-05-12T20:02:45.886Z",
+      "updatedAt": "2026-05-12T20:02:45.886Z"
+    },
+    {
+      "id": "e7c77abb-d210-4a84-9e32-6c81e02feb23",
+      "voter": "Hansi",
+      "artistId": "israel",
+      "song": 10,
+      "show": 6,
+      "total": 16,
+      "createdAt": "2026-05-12T20:03:09.876Z",
+      "updatedAt": "2026-05-12T20:03:09.876Z"
+    },
+    {
+      "id": "8d87f517-4488-4ab9-abed-8bf31ccfc61e",
+      "voter": "Nina",
+      "artistId": "israel",
+      "song": 5,
+      "show": 5,
+      "total": 10,
+      "createdAt": "2026-05-12T20:03:20.764Z",
+      "updatedAt": "2026-05-12T20:03:20.764Z"
+    },
+    {
+      "id": "a7fff8ad-cd9c-464c-ad05-6acaf863247a",
+      "voter": "Björn",
+      "artistId": "israel",
+      "song": 5,
+      "show": 3,
+      "total": 8,
+      "createdAt": "2026-05-12T20:03:32.861Z",
+      "updatedAt": "2026-05-12T20:03:32.861Z"
+    },
+    {
+      "id": "95e232b5-96b6-49d0-8387-e73ba8f7ab82",
+      "voter": "Bissen og Chica 🦄",
+      "artistId": "israel",
+      "song": 5,
+      "show": 5,
+      "total": 10,
+      "createdAt": "2026-05-12T20:04:07.244Z",
+      "updatedAt": "2026-05-12T20:04:07.244Z"
+    },
+    {
+      "id": "45dd9350-7029-48c5-93e7-762679db847e",
+      "voter": "Björn",
+      "artistId": "belgium",
+      "song": 2,
+      "show": 6,
+      "total": 8,
+      "createdAt": "2026-05-12T20:14:34.045Z",
+      "updatedAt": "2026-05-12T20:14:34.045Z"
+    },
+    {
+      "id": "d3b49432-0250-4547-8089-9a8b558fb93e",
+      "voter": "Nina",
+      "artistId": "belgium",
+      "song": 6,
+      "show": 2,
+      "total": 8,
+      "createdAt": "2026-05-12T20:15:07.742Z",
+      "updatedAt": "2026-05-12T20:15:07.742Z"
+    },
+    {
+      "id": "6ec5f008-6d2c-45b3-8e1d-da973677a70d",
+      "voter": "Sarah",
+      "artistId": "belgium",
+      "song": 2,
+      "show": 6,
+      "total": 8,
+      "createdAt": "2026-05-12T20:15:17.900Z",
+      "updatedAt": "2026-05-12T20:15:17.900Z"
+    },
+    {
+      "id": "304a7e2f-fc10-43c1-a0a0-56bed620ac6e",
+      "voter": "Bissen og Chica 🦄",
+      "artistId": "belgium",
+      "song": 5,
+      "show": 5,
+      "total": 10,
+      "createdAt": "2026-05-12T20:16:04.468Z",
+      "updatedAt": "2026-05-12T20:16:04.468Z"
+    },
+    {
+      "id": "54b03ecd-f066-46d7-9e77-c12459c67d93",
+      "voter": "Björn",
+      "artistId": "lithuania",
+      "song": 2,
+      "show": 2,
+      "total": 4,
+      "createdAt": "2026-05-12T20:19:26.609Z",
+      "updatedAt": "2026-05-12T20:19:26.609Z"
+    },
+    {
+      "id": "54563c94-821f-47cb-9938-48d1d29df92f",
+      "voter": "Sarah",
+      "artistId": "lithuania",
+      "song": 6,
+      "show": 4,
+      "total": 10,
+      "createdAt": "2026-05-12T20:19:31.354Z",
+      "updatedAt": "2026-05-12T20:19:31.354Z"
+    },
+    {
+      "id": "a1439e2d-870d-413b-be65-0b190a6d9b25",
+      "voter": "Hansi",
+      "artistId": "belgium",
+      "song": 7,
+      "show": 4,
+      "total": 11,
+      "createdAt": "2026-05-12T20:20:06.154Z",
+      "updatedAt": "2026-05-12T20:20:06.154Z"
+    },
+    {
+      "id": "da5533d3-e7da-4b1e-aa2d-a06e9ea38eaf",
+      "voter": "Nina",
+      "artistId": "lithuania",
+      "song": 2,
+      "show": 2,
+      "total": 4,
+      "createdAt": "2026-05-12T20:20:06.341Z",
+      "updatedAt": "2026-05-12T20:20:06.341Z"
+    },
+    {
+      "id": "ea2c46b6-2840-4ef6-b270-5bfda37ac59d",
+      "voter": "Hansi",
+      "artistId": "lithuania",
+      "song": 5,
+      "show": 4,
+      "total": 9,
+      "createdAt": "2026-05-12T20:20:23.937Z",
+      "updatedAt": "2026-05-12T20:20:23.937Z"
+    },
+    {
+      "id": "770ef851-d4cc-4fe9-87e2-1c9fc7bbd6db",
+      "voter": "Bissen og Chica 🦄",
+      "artistId": "lithuania",
+      "song": 4,
+      "show": 3,
+      "total": 7,
+      "createdAt": "2026-05-12T20:20:38.435Z",
+      "updatedAt": "2026-05-12T20:20:56.575Z"
+    },
+    {
+      "id": "3905b650-0204-412a-8220-c21f60cf3957",
+      "voter": "Nina",
+      "artistId": "san-marino",
+      "song": 5,
+      "show": 10,
+      "total": 15,
+      "createdAt": "2026-05-12T20:23:48.078Z",
+      "updatedAt": "2026-05-12T20:23:48.078Z"
+    },
+    {
+      "id": "518c99fa-4eb3-4453-a6f2-08e2830486e9",
+      "voter": "Björn",
+      "artistId": "san-marino",
+      "song": 2,
+      "show": 5,
+      "total": 7,
+      "createdAt": "2026-05-12T20:23:52.091Z",
+      "updatedAt": "2026-05-12T20:23:52.091Z"
+    },
+    {
+      "id": "35e9d4c5-2cbe-48f8-9f04-9b6177eb3d56",
+      "voter": "Hansi",
+      "artistId": "san-marino",
+      "song": 4,
+      "show": 5,
+      "total": 9,
+      "createdAt": "2026-05-12T20:24:04.227Z",
+      "updatedAt": "2026-05-12T20:24:04.227Z"
+    },
+    {
+      "id": "cd3b3b4f-f7ec-407f-8814-413307338699",
+      "voter": "Sarah",
+      "artistId": "san-marino",
+      "song": 3,
+      "show": 6,
+      "total": 9,
+      "createdAt": "2026-05-12T20:24:06.795Z",
+      "updatedAt": "2026-05-12T20:24:12.512Z"
+    },
+    {
+      "id": "ea2f82f8-64fb-4346-a225-f9b7482b3bc9",
+      "voter": "Bissen og Chica 🦄",
+      "artistId": "san-marino",
+      "song": 4,
+      "show": 5,
+      "total": 9,
+      "createdAt": "2026-05-12T20:24:22.670Z",
+      "updatedAt": "2026-05-12T20:24:22.670Z"
+    },
+    {
+      "id": "a1b33d9d-b456-4f72-8cab-73b5e3aa407a",
+      "voter": "Björn",
+      "artistId": "poland",
+      "song": 8,
+      "show": 8,
+      "total": 16,
+      "createdAt": "2026-05-12T20:27:39.181Z",
+      "updatedAt": "2026-05-12T20:27:39.181Z"
+    },
+    {
+      "id": "d7d8b68f-4273-49d5-8fc9-f39627a052d7",
+      "voter": "Sarah",
+      "artistId": "poland",
+      "song": 10,
+      "show": 10,
+      "total": 20,
+      "createdAt": "2026-05-12T20:27:54.723Z",
+      "updatedAt": "2026-05-12T21:19:28.486Z"
+    },
+    {
+      "id": "e9b45e38-6b75-49e9-afc5-467b2c74559f",
+      "voter": "Nina",
+      "artistId": "poland",
+      "song": 8,
+      "show": 10,
+      "total": 18,
+      "createdAt": "2026-05-12T20:27:56.488Z",
+      "updatedAt": "2026-05-12T20:27:56.488Z"
+    },
+    {
+      "id": "b9417ce8-1121-4a6a-a5ee-68fdbcf9b567",
+      "voter": "Hansi",
+      "artistId": "poland",
+      "song": 6,
+      "show": 5,
+      "total": 11,
+      "createdAt": "2026-05-12T20:28:58.067Z",
+      "updatedAt": "2026-05-12T20:28:58.067Z"
+    },
+    {
+      "id": "b3ed7dfa-3eae-4f7f-a5ef-703ed4cf2de0",
+      "voter": "Björn",
+      "artistId": "serbia",
+      "song": 10,
+      "show": 2,
+      "total": 12,
+      "createdAt": "2026-05-12T20:32:17.080Z",
+      "updatedAt": "2026-05-12T20:32:17.080Z"
+    },
+    {
+      "id": "77f68844-008b-469f-af79-4367ebbd0148",
+      "voter": "Sarah",
+      "artistId": "serbia",
+      "song": 3,
+      "show": 5,
+      "total": 8,
+      "createdAt": "2026-05-12T20:32:25.535Z",
+      "updatedAt": "2026-05-12T20:33:06.994Z"
+    },
+    {
+      "id": "46ea0a8e-bbcf-43d8-b0a2-dd5aca932313",
+      "voter": "Nina",
+      "artistId": "serbia",
+      "song": 1,
+      "show": 3,
+      "total": 4,
+      "createdAt": "2026-05-12T20:32:39.410Z",
+      "updatedAt": "2026-05-12T20:32:39.410Z"
+    },
+    {
+      "id": "90fa6f28-9992-4e38-8dbf-445a6d601f3c",
+      "voter": "Bissen og Chica 🦄",
+      "artistId": "serbia",
+      "song": 4,
+      "show": 6,
+      "total": 10,
+      "createdAt": "2026-05-12T20:33:00.747Z",
+      "updatedAt": "2026-05-12T20:33:00.747Z"
+    },
+    {
+      "id": "9ec6cbe3-6ef7-4a46-b545-fab2071f2f6c",
+      "voter": "Hansi",
+      "artistId": "serbia",
+      "song": 1,
+      "show": 4,
+      "total": 5,
+      "createdAt": "2026-05-12T20:38:49.901Z",
+      "updatedAt": "2026-05-12T20:38:49.901Z"
+    }
+  ],
+  "presenceEvents": [
+    {
+      "id": "065abf5f-7070-4b5b-8798-930b09f04586",
+      "voter": "Björn",
+      "joinedAt": "2026-05-12T18:42:43.150Z"
+    },
+    {
+      "id": "9a03c120-5bfb-41eb-b51c-d3352329654f",
+      "voter": "Björn",
+      "joinedAt": "2026-05-12T18:48:53.062Z"
+    },
+    {
+      "id": "1a5ca756-b99f-43e3-b781-3c664d0846f1",
+      "voter": "Björn",
+      "joinedAt": "2026-05-12T18:49:20.012Z"
+    },
+    {
+      "id": "a6460460-624d-4c19-ab80-2992c115bc11",
+      "voter": "Björn",
+      "joinedAt": "2026-05-12T18:49:21.491Z"
+    },
+    {
+      "id": "143e0c56-9251-435b-9074-7ca175c05da9",
+      "voter": "Björn",
+      "joinedAt": "2026-05-12T18:49:32.074Z"
+    },
+    {
+      "id": "10158729-0477-4b9d-b0fe-43e662aa0022",
+      "voter": "Björn",
+      "joinedAt": "2026-05-12T18:49:46.500Z"
+    },
+    {
+      "id": "07a4a538-5fbe-4998-83d4-a654201f9410",
+      "voter": "Björn",
+      "joinedAt": "2026-05-12T18:51:32.758Z"
+    },
+    {
+      "id": "8cd0bde2-ace8-41df-af29-8b11d1f1e517",
+      "voter": "Björn",
+      "joinedAt": "2026-05-12T18:53:19.293Z"
+    },
+    {
+      "id": "d008ec20-c59f-4ba0-ae4a-f13921e62ebb",
+      "voter": "Björn",
+      "joinedAt": "2026-05-12T18:56:28.085Z"
+    },
+    {
+      "id": "96ff31fa-5a25-4ab8-8e61-fd7c27364350",
+      "voter": "Björn",
+      "joinedAt": "2026-05-12T18:56:55.832Z"
+    },
+    {
+      "id": "4fed83d7-d068-48f8-b3e8-22085924f9a7",
+      "voter": "Björn",
+      "joinedAt": "2026-05-12T18:58:08.912Z"
+    },
+    {
+      "id": "59c8e0f3-3b9a-41b8-8365-84ada34a11e6",
+      "voter": "Sarah",
+      "joinedAt": "2026-05-12T18:58:41.956Z"
+    },
+    {
+      "id": "bb4373c5-0be6-4975-919e-52aedb66e98a",
+      "voter": "Sarah",
+      "joinedAt": "2026-05-12T18:58:46.343Z"
+    },
+    {
+      "id": "3eb1baed-bc11-45f5-9f0d-2dfa4d686669",
+      "voter": "Björn",
+      "joinedAt": "2026-05-12T18:59:20.555Z"
+    },
+    {
+      "id": "32b6ffab-15b3-458b-9d36-1a595c616391",
+      "voter": "Björn",
+      "joinedAt": "2026-05-12T18:59:21.355Z"
+    },
+    {
+      "id": "703d93c4-a135-41ae-9c91-f3aaf9679085",
+      "voter": "Sarah",
+      "joinedAt": "2026-05-12T18:59:28.579Z"
+    },
+    {
+      "id": "3e876e4d-dc23-43b6-9476-6decb31b8671",
+      "voter": "Björn",
+      "joinedAt": "2026-05-12T18:59:47.249Z"
+    },
+    {
+      "id": "ef050378-15ec-4298-9202-9c8958bbd85b",
+      "voter": "Björn",
+      "joinedAt": "2026-05-12T19:01:29.117Z"
+    },
+    {
+      "id": "a2cb32f0-f834-420d-a403-eb451216e03e",
+      "voter": "Sarah",
+      "joinedAt": "2026-05-12T19:03:20.825Z"
+    },
+    {
+      "id": "06e30f0d-fce3-4391-a2a1-048396b5d070",
+      "voter": "Björn",
+      "joinedAt": "2026-05-12T19:04:32.245Z"
+    },
+    {
+      "id": "d9cf7cb1-f7cf-45ac-b565-a1e8388c9ac2",
+      "voter": "Björn",
+      "joinedAt": "2026-05-12T19:04:32.478Z"
+    },
+    {
+      "id": "1ad0341d-afb6-439e-a835-61ef6cc93c5e",
+      "voter": "Björn",
+      "joinedAt": "2026-05-12T19:05:41.491Z"
+    },
+    {
+      "id": "9c13d5e9-7ce4-4177-86b7-8dd211b91247",
+      "voter": "Mich",
+      "joinedAt": "2026-05-12T19:05:41.997Z"
+    },
+    {
+      "id": "9203f1a6-e021-4299-8f38-8e55895768cf",
+      "voter": "Bissen og Chica 🦄",
+      "joinedAt": "2026-05-12T19:05:42.193Z"
+    },
+    {
+      "id": "2031913c-2ae4-479d-a545-1afeccb2bd65",
+      "voter": "Sarah",
+      "joinedAt": "2026-05-12T19:05:47.944Z"
+    },
+    {
+      "id": "be2d39d3-1010-4203-9867-78fd536e1ac2",
+      "voter": "Bissen og Chica 🦄",
+      "joinedAt": "2026-05-12T19:05:49.393Z"
+    },
+    {
+      "id": "38588909-17c8-43ed-992c-8c87946e9116",
+      "voter": "Mich",
+      "joinedAt": "2026-05-12T19:05:54.816Z"
+    },
+    {
+      "id": "85819e31-a7ac-4092-8d0a-10210f21d757",
+      "voter": "Sarah",
+      "joinedAt": "2026-05-12T19:06:04.195Z"
+    },
+    {
+      "id": "d0b6dfee-3ed7-4b0d-ae2e-1dd1ef250bc8",
+      "voter": "Bissen og Chica 🦄",
+      "joinedAt": "2026-05-12T19:06:14.071Z"
+    },
+    {
+      "id": "f890121f-a84c-4541-9245-0f542ceba0a7",
+      "voter": "Sarah",
+      "joinedAt": "2026-05-12T19:06:16.817Z"
+    },
+    {
+      "id": "26e5c36a-95a2-4d4d-8d62-425d0e1a47d8",
+      "voter": "Björn",
+      "joinedAt": "2026-05-12T19:06:17.773Z"
+    },
+    {
+      "id": "d2e0fbde-4165-4f90-a12c-615286453d80",
+      "voter": "Mich",
+      "joinedAt": "2026-05-12T19:06:19.437Z"
+    },
+    {
+      "id": "428a7748-75de-4815-8271-d3dd8ddacfa7",
+      "voter": "Björn",
+      "joinedAt": "2026-05-12T19:06:55.593Z"
+    },
+    {
+      "id": "c24177d7-4828-47d1-a14c-e940145f2e97",
+      "voter": "Sarah",
+      "joinedAt": "2026-05-12T19:07:49.349Z"
+    },
+    {
+      "id": "d30f2fec-ef03-473e-8234-d2bafe08ae8b",
+      "voter": "Björn",
+      "joinedAt": "2026-05-12T19:08:07.632Z"
+    },
+    {
+      "id": "2278c387-e2b0-4791-802a-2e306d97da12",
+      "voter": "Björn",
+      "joinedAt": "2026-05-12T19:08:13.657Z"
+    },
+    {
+      "id": "e934458e-2bae-4682-89f4-114c9b64dc0a",
+      "voter": "Björn",
+      "joinedAt": "2026-05-12T19:08:13.734Z"
+    },
+    {
+      "id": "cdabc36f-d266-465e-85b3-b7ba7291776a",
+      "voter": "Sarah",
+      "joinedAt": "2026-05-12T19:08:49.537Z"
+    },
+    {
+      "id": "6df1567e-654e-4db4-9d39-9340f48dcf72",
+      "voter": "Björn",
+      "joinedAt": "2026-05-12T19:08:54.332Z"
+    },
+    {
+      "id": "4c9b44a7-9ca7-488f-be7b-bc62b091587f",
+      "voter": "Björn",
+      "joinedAt": "2026-05-12T19:09:03.034Z"
+    },
+    {
+      "id": "509a8588-bfda-495f-a676-4d163255d1bd",
+      "voter": "Nina",
+      "joinedAt": "2026-05-12T19:09:14.675Z"
+    },
+    {
+      "id": "38ae02c8-073d-46c8-8326-bf2136664cb7",
+      "voter": "Mich",
+      "joinedAt": "2026-05-12T19:09:52.966Z"
+    },
+    {
+      "id": "202440d2-9f4f-4125-b7b4-740e3268c623",
+      "voter": "Sarah",
+      "joinedAt": "2026-05-12T19:13:52.639Z"
+    },
+    {
+      "id": "b1e95050-6da7-43b4-8abb-7aa6273dbe65",
+      "voter": "Alexia",
+      "joinedAt": "2026-05-12T19:14:39.910Z"
+    },
+    {
+      "id": "006460f6-f626-48ef-af75-a5f628278596",
+      "voter": "Bissen og Chica 🦄",
+      "joinedAt": "2026-05-12T19:16:21.465Z"
+    },
+    {
+      "id": "e8ee1239-b611-417c-91b4-5530ec060e8d",
+      "voter": "Hansi",
+      "joinedAt": "2026-05-12T19:16:32.463Z"
+    },
+    {
+      "id": "d9d0d199-0ad7-4280-a996-056cbc2106a9",
+      "voter": "Sienna",
+      "joinedAt": "2026-05-12T19:19:35.458Z"
+    },
+    {
+      "id": "cbeb3600-8d3b-4367-8421-e259043449ce",
+      "voter": "Liva",
+      "joinedAt": "2026-05-12T19:43:44.910Z"
+    }
+  ],
+  "participants": [
+    {
+      "voter": "Björn",
+      "lastSeenAt": "2026-05-13T11:11:41.413Z"
+    },
+    {
+      "voter": "Nina",
+      "lastSeenAt": "2026-05-13T09:37:05.360Z"
+    },
+    {
+      "voter": "Mich",
+      "lastSeenAt": "2026-05-13T11:12:42.406Z"
+    },
+    {
+      "voter": "Sarah",
+      "lastSeenAt": "2026-05-13T10:51:29.483Z"
+    },
+    {
+      "voter": "Alexia",
+      "lastSeenAt": "2026-05-12T19:15:10.947Z"
+    },
+    {
+      "voter": "Bissen og Chica 🦄",
+      "lastSeenAt": "2026-05-12T22:21:42.057Z"
+    },
+    {
+      "voter": "Hansi",
+      "lastSeenAt": "2026-05-12T20:40:52.304Z"
+    },
+    {
+      "voter": "Sienna",
+      "lastSeenAt": "2026-05-12T20:02:09.826Z"
+    },
+    {
+      "voter": "Liva",
+      "lastSeenAt": "2026-05-12T20:06:02.308Z"
+    }
+  ],
+  "reactionEvents": [
+    {
+      "id": "36fea36b-d9d2-41a8-99c3-103e23b02f1d",
+      "voter": "Hansi",
+      "artistId": "moldova",
+      "kind": "cringe",
+      "createdAt": "2026-05-12T19:17:15.241Z",
+      "updatedAt": "2026-05-12T19:17:15.241Z"
+    },
+    {
+      "id": "f6f5ee10-b718-43c5-942a-a0a4754c65ae",
+      "voter": "Hansi",
+      "artistId": "moldova",
+      "kind": "cringe",
+      "createdAt": "2026-05-12T19:17:16.716Z",
+      "updatedAt": "2026-05-12T19:17:16.716Z"
+    },
+    {
+      "id": "1a249380-e078-4161-a544-44dfdfe6e74f",
+      "voter": "Hansi",
+      "artistId": "moldova",
+      "kind": "cringe",
+      "createdAt": "2026-05-12T19:17:17.410Z",
+      "updatedAt": "2026-05-12T19:17:17.410Z"
+    },
+    {
+      "id": "412627e3-2c78-4dec-9d77-e6859ca82713",
+      "voter": "Hansi",
+      "artistId": "moldova",
+      "kind": "cringe",
+      "createdAt": "2026-05-12T19:17:17.994Z",
+      "updatedAt": "2026-05-12T19:17:17.994Z"
+    },
+    {
+      "id": "b4defda7-490b-4623-947c-b8b5eecd4330",
+      "voter": "Björn",
+      "artistId": "sweden",
+      "kind": "cringe",
+      "createdAt": "2026-05-12T19:17:36.560Z",
+      "updatedAt": "2026-05-12T19:17:36.560Z"
+    },
+    {
+      "id": "885a939f-cfe7-4281-b98f-2abf62ab1da0",
+      "voter": "Hansi",
+      "artistId": "sweden",
+      "kind": "wow",
+      "createdAt": "2026-05-12T19:18:55.596Z",
+      "updatedAt": "2026-05-12T19:18:55.596Z"
+    },
+    {
+      "id": "be18374b-eb21-42d7-b971-5782aefe89ca",
+      "voter": "Björn",
+      "artistId": "sweden",
+      "emoji": "🚀",
+      "createdAt": "2026-05-12T19:20:19.573Z",
+      "updatedAt": "2026-05-12T19:20:19.573Z"
+    },
+    {
+      "id": "5d1cc9e2-5cc6-41bc-8b6a-2cd1170b2b74",
+      "voter": "Björn",
+      "artistId": "croatia",
+      "emoji": "😬",
+      "createdAt": "2026-05-12T19:22:47.811Z",
+      "updatedAt": "2026-05-12T19:23:18.886Z"
+    },
+    {
+      "id": "a454c82a-d711-41b1-ab3f-2655d941861b",
+      "voter": "Nina",
+      "artistId": "croatia",
+      "emoji": "😬",
+      "createdAt": "2026-05-12T19:22:54.446Z",
+      "updatedAt": "2026-05-12T19:22:54.446Z"
+    },
+    {
+      "id": "235e19dc-ba87-457e-9e28-6284f6735b06",
+      "voter": "Sienna",
+      "artistId": "croatia",
+      "emoji": "😬",
+      "createdAt": "2026-05-12T19:23:00.319Z",
+      "updatedAt": "2026-05-12T19:23:00.319Z"
+    },
+    {
+      "id": "b9bd6beb-49a1-48ce-9b0c-1d5371348b44",
+      "voter": "Björn",
+      "artistId": "greece",
+      "emoji": "😕",
+      "createdAt": "2026-05-12T19:25:31.914Z",
+      "updatedAt": "2026-05-12T19:25:31.914Z"
+    },
+    {
+      "id": "b9bf99c2-1211-4eeb-9926-5dc13263faaf",
+      "voter": "Nina",
+      "artistId": "greece",
+      "emoji": "😬",
+      "createdAt": "2026-05-12T19:26:02.814Z",
+      "updatedAt": "2026-05-12T19:26:09.599Z"
+    },
+    {
+      "id": "b42221a8-9caf-4297-8313-5e131acbb196",
+      "voter": "Bissen og Chica 🦄",
+      "artistId": "greece",
+      "emoji": "😕",
+      "createdAt": "2026-05-12T19:27:51.479Z",
+      "updatedAt": "2026-05-12T19:27:51.479Z"
+    },
+    {
+      "id": "0560e7f8-7e06-4e0c-af71-4668f102fd43",
+      "voter": "Björn",
+      "artistId": "portugal",
+      "emoji": "😕",
+      "createdAt": "2026-05-12T19:31:40.778Z",
+      "updatedAt": "2026-05-12T19:31:40.778Z"
+    },
+    {
+      "id": "c5474d26-fa25-4f7d-b8ac-c58a960f05c5",
+      "voter": "Björn",
+      "artistId": "georgia",
+      "emoji": "😕",
+      "createdAt": "2026-05-12T19:34:52.999Z",
+      "updatedAt": "2026-05-12T19:36:46.976Z"
+    },
+    {
+      "id": "59964817-2b50-44a2-9d47-929d1f76da2a",
+      "voter": "Bissen og Chica 🦄",
+      "artistId": "georgia",
+      "emoji": "😳",
+      "createdAt": "2026-05-12T19:35:07.518Z",
+      "updatedAt": "2026-05-12T19:35:07.518Z"
+    },
+    {
+      "id": "c7bae43f-8def-44f8-997c-2dfdab0a8e69",
+      "voter": "Nina",
+      "artistId": "georgia",
+      "emoji": "😳",
+      "createdAt": "2026-05-12T19:35:58.151Z",
+      "updatedAt": "2026-05-12T19:35:58.151Z"
+    },
+    {
+      "id": "5d24ca7d-df6c-47e4-9ff7-08576170e6b2",
+      "voter": "Sienna",
+      "artistId": "georgia",
+      "emoji": "😳",
+      "createdAt": "2026-05-12T19:36:18.773Z",
+      "updatedAt": "2026-05-12T19:36:21.191Z"
+    },
+    {
+      "id": "e6a92239-e748-4e55-9f06-467493d45c61",
+      "voter": "Sarah",
+      "artistId": "georgia",
+      "emoji": "😳",
+      "createdAt": "2026-05-12T19:36:54.732Z",
+      "updatedAt": "2026-05-12T19:36:54.732Z"
+    },
+    {
+      "id": "f0c8dd02-eb0e-4491-ba78-0f15b82517f5",
+      "voter": "Hansi",
+      "artistId": "georgia",
+      "emoji": "😳",
+      "createdAt": "2026-05-12T19:37:18.003Z",
+      "updatedAt": "2026-05-12T19:37:18.003Z"
+    },
+    {
+      "id": "57c29604-55b2-4dec-ab82-00531e738dad",
+      "voter": "Björn",
+      "artistId": "finland",
+      "emoji": "👏",
+      "createdAt": "2026-05-12T19:48:10.245Z",
+      "updatedAt": "2026-05-12T19:48:10.245Z"
+    },
+    {
+      "id": "6a7e7158-a51f-41c6-8b8a-655d0be8dc7e",
+      "voter": "Sarah",
+      "artistId": "finland",
+      "emoji": "🤩",
+      "createdAt": "2026-05-12T19:48:45.413Z",
+      "updatedAt": "2026-05-12T19:48:48.755Z"
+    },
+    {
+      "id": "244d0559-67da-4c85-9d18-3e2a5e6555f1",
+      "voter": "Sienna",
+      "artistId": "finland",
+      "emoji": "🤩",
+      "createdAt": "2026-05-12T19:50:46.301Z",
+      "updatedAt": "2026-05-12T19:50:49.996Z"
+    },
+    {
+      "id": "6af35035-dfc9-4232-9f8f-8efc91530501",
+      "voter": "Björn",
+      "artistId": "montenegro",
+      "emoji": "😳",
+      "createdAt": "2026-05-12T19:51:36.006Z",
+      "updatedAt": "2026-05-12T19:51:36.006Z"
+    },
+    {
+      "id": "5629ba2c-eae8-4c4c-ac4a-aa0899c27c1d",
+      "voter": "Björn",
+      "artistId": "estonia",
+      "emoji": "🎸",
+      "createdAt": "2026-05-12T19:56:39.214Z",
+      "updatedAt": "2026-05-12T19:57:42.921Z",
+      "exact": true
+    },
+    {
+      "id": "2f8c749b-5aa8-496c-8424-811fc8bd18a2",
+      "voter": "Hansi",
+      "artistId": "estonia",
+      "emoji": "🤘",
+      "exact": true,
+      "createdAt": "2026-05-12T19:58:04.828Z",
+      "updatedAt": "2026-05-12T19:58:06.112Z"
+    },
+    {
+      "id": "ce8a3566-23b2-496a-9354-333f953a3207",
+      "voter": "Bissen og Chica 🦄",
+      "artistId": "estonia",
+      "emoji": "👏",
+      "exact": false,
+      "createdAt": "2026-05-12T19:59:28.823Z",
+      "updatedAt": "2026-05-12T19:59:28.823Z"
+    },
+    {
+      "id": "33915f76-116f-4cfe-a188-fa5f1b7a079d",
+      "voter": "Sarah",
+      "artistId": "belgium",
+      "emoji": "🔥",
+      "exact": true,
+      "createdAt": "2026-05-12T20:06:01.019Z",
+      "updatedAt": "2026-05-12T20:06:01.019Z"
+    },
+    {
+      "id": "ae84a32f-249a-4376-8c73-ea03ad1b4710",
+      "voter": "Björn",
+      "artistId": "belgium",
+      "emoji": "😳",
+      "exact": false,
+      "createdAt": "2026-05-12T20:06:53.217Z",
+      "updatedAt": "2026-05-12T20:14:44.414Z"
+    },
+    {
+      "id": "04c542c0-0632-4573-ab57-b077df956390",
+      "voter": "Björn",
+      "artistId": "lithuania",
+      "emoji": "💀",
+      "exact": true,
+      "createdAt": "2026-05-12T20:16:55.112Z",
+      "updatedAt": "2026-05-12T20:16:55.112Z"
+    },
+    {
+      "id": "bf61678d-e4db-484c-bce4-7c4939656083",
+      "voter": "Björn",
+      "artistId": "san-marino",
+      "emoji": "🪩",
+      "exact": true,
+      "createdAt": "2026-05-12T20:21:03.893Z",
+      "updatedAt": "2026-05-12T20:21:03.893Z"
+    },
+    {
+      "id": "3bdfbe79-a954-4090-8d7a-3ff3a72c8355",
+      "voter": "Bissen og Chica 🦄",
+      "artistId": "san-marino",
+      "emoji": "🌟",
+      "exact": true,
+      "createdAt": "2026-05-12T20:22:17.970Z",
+      "updatedAt": "2026-05-12T20:22:17.970Z"
+    },
+    {
+      "id": "ffe896af-67c4-43a1-af79-6dbbc5a7dbaa",
+      "voter": "Bissen og Chica 🦄",
+      "artistId": "poland",
+      "emoji": "👏",
+      "exact": false,
+      "createdAt": "2026-05-12T20:26:38.609Z",
+      "updatedAt": "2026-05-12T20:26:38.609Z"
+    },
+    {
+      "id": "de799478-d683-45d9-a25c-228da58bb5c7",
+      "voter": "Björn",
+      "artistId": "poland",
+      "emoji": "🔊",
+      "exact": true,
+      "createdAt": "2026-05-12T20:27:21.036Z",
+      "updatedAt": "2026-05-12T20:27:21.036Z"
+    },
+    {
+      "id": "33f665bd-72dd-4923-a228-2a93c00cef78",
+      "voter": "Björn",
+      "artistId": "serbia",
+      "emoji": "😱",
+      "exact": true,
+      "createdAt": "2026-05-12T20:29:24.219Z",
+      "updatedAt": "2026-05-12T20:29:32.617Z"
+    },
+    {
+      "id": "ddc28eb5-e5f7-4dcc-b267-fe6a4638abfe",
+      "voter": "Nina",
+      "artistId": "serbia",
+      "emoji": "😂",
+      "exact": false,
+      "createdAt": "2026-05-12T20:30:05.161Z",
+      "updatedAt": "2026-05-12T20:32:03.026Z"
+    },
+    {
+      "id": "aea51c37-23f9-4f98-bb61-df0513cec000",
+      "voter": "Bissen og Chica 🦄",
+      "artistId": "serbia",
+      "emoji": "🫣",
+      "exact": true,
+      "createdAt": "2026-05-12T20:31:35.293Z",
+      "updatedAt": "2026-05-12T20:31:35.293Z"
+    }
+  ]
+}

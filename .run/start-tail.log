@@ -1,0 +1,10 @@
+
+> melodifestivalen-vote@0.1.0 start:tail
+> next start --hostname 0.0.0.0 --port 3020
+
+▲ Next.js 16.1.6
+- Local:         http://localhost:3020
+- Network:       http://0.0.0.0:3020
+
+✓ Starting...
+✓ Ready in 200ms

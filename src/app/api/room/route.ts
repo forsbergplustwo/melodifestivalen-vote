@@ -5,6 +5,7 @@ import { normalizeRoomCode } from "@/lib/rooms";
 type RoomRequest = {
   action?: "create" | "join";
   room?: string;
+  voter?: string;
 };
 
 export async function POST(request: Request) {
@@ -12,7 +13,7 @@ export async function POST(request: Request) {
     const body = (await request.json()) as RoomRequest;
 
     if (body.action === "create") {
-      const roomCode = await createRoom();
+      const roomCode = await createRoom(body.voter);
       return NextResponse.json({ roomCode }, { status: 201 });
     }
 

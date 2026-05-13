@@ -13,5 +13,8 @@ export async function GET(request: Request) {
     artists: state.artists,
     votes: state.votes,
     leaderboard: buildLeaderboard(state),
+    presenceEvents: state.presenceEvents,
+    participants: state.participants,
+    reactionEvents: state.reactionEvents,
   });
 }
