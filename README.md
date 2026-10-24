@@ -18,9 +18,11 @@ Built for watching parties. No login. No database. Just fun.
 
 ## Quick Start
 
+This repo uses pnpm (`packageManager` in `package.json`). Enable it with `corepack enable` so the pinned version is used.
+
 ```bash
-npm install
-npm run dev
+pnpm install --frozen-lockfile
+pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
@@ -28,8 +30,8 @@ Open [http://localhost:3000](http://localhost:3000).
 ## Production
 
 ```bash
-npm run build
-npm run start -- -p 3020
+pnpm build
+pnpm start -- -p 3020
 ```
 
 Expose via Tailscale Funnel, Cloudflare Tunnel, or your preferred method:

@@ -1,0 +1,37 @@
+# Layer 0 / Freeze: apply at every pnpm install (local, CI, host build).
+# Settings live here, not in package.json, since pnpm 11.
+
+# Don't install any version published less than 14 days ago.
+# If a locked version is still inside the cooldown, exempt only that
+# exact name@version and leave a removal date — do not lower this number.
+minimumReleaseAge: 20160 # 14 days, minutes
+
+# Fail the install if a dependency wants a build/install script that
+# is not listed in allowBuilds below.
+strictDepBuilds: true
+
+# Fail if a package's trust evidence is weaker than an earlier release
+# (e.g. trusted-publishing followed by a laptop publish).
+trustPolicy: no-downgrade
+
+# Exact versions imported from package-lock.json that fail no-downgrade
+# because an earlier-published release of the same name had stronger
+# trust evidence. Remove each pin when that package is upgraded.
+trustPolicyExclude:
+  - eslint-import-resolver-typescript@3.10.1
+  - semver@6.3.1
+  - undici-types@6.21.0
+
+# Transitive dependencies may not come from git repos or tarball URLs.
+blockExoticSubdeps: true
+
+# Reviewed list of packages that want install/build scripts.
+# true = needed and allowed; false = we know, do not run.
+# Discovered by install: only these two requested scripts.
+allowBuilds:
+  # Next.js optional native image optimizer. install script checks/builds
+  # the prebuilt binary; required if/when next/image or next start uses it.
+  sharp: true
+  # NAPI resolver used by eslint-import-resolver-typescript (eslint-config-next).
+  # postinstall verifies the platform binding is present.
+  unrs-resolver: true
